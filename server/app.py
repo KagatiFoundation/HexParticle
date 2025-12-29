@@ -28,7 +28,7 @@ import websockets
 import asyncio
 
 # Sniffer library
-from sniffer_api import InterfaceManager, Sniffer
+from particle import InterfaceManager, HexParticleSniffer
 from net_consts import ALL_PAYLOAD_TYPES
 
 all_interfaces = []
@@ -71,7 +71,7 @@ def should_include_payload(filters, packet):
 def sniffer_thread(interface: str, filters_q: asyncio.Queue[str], loop):
     global interface_packet_queues
 
-    snif = Sniffer(interface)
+    snif = HexParticleSniffer(interface)
     filters = []
 
     while True:
@@ -123,7 +123,7 @@ async def handle_packet_list_reqs(w_socket):
     if interface not in connected_clients:
         connected_clients[interface] = set()
 
-    print(f"Serving {interface}'s data...")
+    print(f"[*] Serving {interface}'s data...")
 
     connected_clients[interface].add(w_socket)
     if interface_packet_queues.get(interface) is None:
@@ -159,7 +159,7 @@ async def handle_packet_list_reqs(w_socket):
 
 async def client_handler(w_socket):
     if w_socket.request.path == "/ifs":
-        print("Serving interfaces names...", end="")
+        print("[*] Serving interfaces names...", end="")
         await handle_interface_list_reqs(w_socket)
         print("DONE")
     elif w_socket.request.path.startswith("/if/"):
@@ -182,6 +182,6 @@ async def main():
 if __name__ == "__main__":
     try:
         asyncio.run(main())
-        print("Started the sniffer...")
+        print("[*] Analyzer started...")
     except KeyboardInterrupt as e:
         print(e)

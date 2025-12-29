@@ -16,7 +16,7 @@ endif
 SRCS = $(wildcard *.c vendor/cJSON/*.c ip/*.c arp/*.c)
 OBJS = $(patsubst %.c, build/%.o, $(SRCS)) # ---> patsubst(pattern, replacement, text) = pattern substitute
 
-TARGET = ../lib/libsnif.so
+TARGET = ../lib/libparticle.so
 
 all: $(TARGET)
 
