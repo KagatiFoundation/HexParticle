@@ -1,7 +1,5 @@
-'''
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
-'''
 
 import ctypes
 import json
@@ -11,8 +9,7 @@ ETHER_IPV4 = 0x0800
 lib_particle = ctypes.CDLL("../lib/libparticle.so")
 
 '''
-These functions are for capturing and maanging
-packets
+These functions are for capturing and managing packets
 '''
 lib_particle.particle_open.argtypes = [ctypes.c_char_p]
 lib_particle.particle_open.restype = ctypes.c_void_p
