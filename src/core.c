@@ -1,3 +1,8 @@
+/**
+ * SPDX-License-Identifier: MIT
+ * SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
+*/
+
 #include <stdio.h>
 #include <stdint.h>
 #include <unistd.h>
@@ -52,16 +57,8 @@ char **get_all_interfaces_names(usize *count) {
             }
             names = temp;
         }
-
-        char *label = NULL;
-        if (is_wireless(ifa->ifa_name) == 1) {
-            asprintf(&label, "%s (Wi-Fi)", ifa->ifa_name);
-        }
-        else {
-            label = strdup(ifa->ifa_name);
-        }
         
-        names[index] = label;
+        names[index] = strdup(ifa->ifa_name);
         if (!names[index]) {
             perror("strdup");
             break;
