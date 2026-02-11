@@ -43,7 +43,6 @@ char* parse_tcp_to_json(const u_char* data) {
     cJSON_AddNumberToObject(tcp_json, "Destination Port", dst_port);
     cJSON_AddNumberToObject(tcp_json, "Sequence Number", seq_num);
     cJSON_AddNumberToObject(tcp_json, "Acknowledgement Number", ack_num);
-    cJSON_AddNumberToObject(tcp_json, "Acknowledgement Number", ack_num);
     cJSON_AddNumberToObject(tcp_json, "Offset", off);
     cJSON_AddNumberToObject(tcp_json, "Reserved", res);
     cJSON_AddNumberToObject(tcp_json, "Flags", flags);

@@ -3,8 +3,9 @@
 
 import ctypes
 import json
+import protocols
 
-ETHER_IPV4 = 0x0800
+import typing
 
 lib_particle = ctypes.CDLL("../lib/libparticle.so")
 
@@ -37,19 +38,38 @@ class HexParticleSniffer:
         self.handle = lib_particle.particle_open(device.encode('utf-8'))
         if not self.handle:
             raise RuntimeError(f"Failed to open device {device}")
+        
+        self._callbacks: typing.Dict[int, typing.List[typing.Callable[[dict], None]]] = {}
 
-    def next_packet(self) -> dict:
+
+    def register(self, payload_type: int, callback: typing.Callable[[dict], None]):
+        self._callbacks.setdefault(payload_type, []).append(callback)
+
+
+    def _dispatch(self, packet: dict):
+        payload_type = packet.get("Payload Type")
+        if payload_type in self._callbacks:
+            for cb in self._callbacks[payload_type]:
+                cb(packet)
+
+
+    def next_packet(self):
         buf = ctypes.create_string_buffer(OUT_BUF_SIZE)
         result = lib_particle.particle_next(self.handle, buf, OUT_BUF_SIZE)
-        if result == 0:
-            return buf.value.decode('utf-8')
-        else:
+
+        if result != 0:
             return None
+
+        packet = json.loads(buf.value.decode("utf-8"))
+        self._dispatch(packet)
+        return packet
+
 
     def close(self):
         if self.handle:
             lib_particle.particle_close(self.handle)
             self.handle = None
+
 
     def __del__(self):
         self.close()
