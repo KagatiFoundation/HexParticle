@@ -1,34 +1,43 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
 
-import sys
 import json
-from particle import HexParticleSniffer, InterfaceManager
-from PyQt6.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout, 
-                             QListWidget, QPushButton, QLabel)
-from PyQt6.QtCore import QThread, pyqtSignal, Qt
+import typing
+
+from particle import HexParticleSniffer
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QPushButton, QLabel)
+from PyQt6.QtCore import QThread, pyqtSignal
+
+import protocols as protos
 
 class HexParticleWorker(QThread):
-    packet_received = pyqtSignal(str)
+    packet_received = pyqtSignal(dict)
 
     def __init__(self, interface):
         super().__init__()
         self.interface = interface
         self.running = True
+        self.sniffer = HexParticleSniffer(self.interface)
+
 
     def run(self):
         try:
-            sniffer = HexParticleSniffer(self.interface)
             while self.running:
-                packet = sniffer.next_packet()
+                packet = self.sniffer.next_packet()
                 if packet:
                     self.packet_received.emit(packet)
-            sniffer.close()
+            self.sniffer.close()
         except Exception as e:
             print(f"Worker Error: {e}")
 
+
+    def register_protocol_cb(self, proto_type: int, cb: typing.Callable):
+        self.sniffer.register(proto_type, cb)
+
+
     def stop(self):
         self.running = False
+
 
 class InterfaceListener(QWidget):
     def __init__(self, interface: str):
@@ -36,6 +45,7 @@ class InterfaceListener(QWidget):
         self.worker = None
         self.interface = interface
         self.init_ui()
+
 
     def init_ui(self):
         self.setWindowTitle("HexParticle Sniffer")
@@ -66,6 +76,7 @@ class InterfaceListener(QWidget):
         ctrl_layout.addWidget(self.stop_btn)
         layout.addLayout(ctrl_layout)
 
+
     def start_sniffing(self):
         if not self.interface: return
 
@@ -73,8 +84,24 @@ class InterfaceListener(QWidget):
         self.stop_btn.setEnabled(True)
         
         self.worker = HexParticleWorker(self.interface)
-        self.worker.packet_received.connect(self.process_packet)
+        self.worker.register_protocol_cb(protos.ETHER_TYPE_IPV4, self.on_ipv4_packet)
         self.worker.start()
+
+    
+    def on_ipv4_packet(self, packet):
+        payload = packet.get('Payload', {})
+        proto = payload.get("Protocol", "?")
+        name = payload.get("Protocol Name", "Unknown")
+
+        display_text = f"Proto: {proto} | Name: {name}"
+        self.packet_log.addItem(display_text)
+
+        self.packet_log.scrollToBottom()
+
+
+    def on_tcp_packet(self, packet):
+        pass
+
 
     def stop_sniffing(self):
         if self.worker:
@@ -82,6 +109,7 @@ class InterfaceListener(QWidget):
             self.worker.wait()
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
+
 
     def process_packet(self, packet_str):
         try:
