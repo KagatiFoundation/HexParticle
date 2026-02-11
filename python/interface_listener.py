@@ -5,7 +5,8 @@ import json
 import typing
 
 from particle import HexParticleSniffer
-from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QListWidget, QPushButton, QLabel)
+from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, 
+                                    QTableWidget, QTableWidgetItem, QPushButton, QLabel)
 from PyQt6.QtCore import QThread, pyqtSignal
 
 import protocols as protos
@@ -31,7 +32,7 @@ class HexParticleWorker(QThread):
             print(f"Worker Error: {e}")
 
 
-    def register_protocol_cb(self, proto_type: int, cb: typing.Callable):
+    def register_ethertype_packet_cb(self, proto_type: int, cb: typing.Callable):
         self.sniffer.register(proto_type, cb)
 
 
@@ -61,8 +62,14 @@ class InterfaceListener(QWidget):
         layout = QVBoxLayout(self)
 
         layout.addWidget(QLabel("Live Packets (IPv4 Protocol Mapping):"))
-        self.packet_log = QListWidget()
-        layout.addWidget(self.packet_log)
+        self.packet_table = QTableWidget()
+        self.packet_table.setColumnCount(5)
+        self.packet_table.setHorizontalHeaderLabels(
+            ["Source", "Destination", "Protocol", "Length", "Info"]
+        )
+        self.packet_table.horizontalHeader().setStretchLastSection(True)
+        self.packet_table.setAlternatingRowColors(True)
+        layout.addWidget(self.packet_table)
 
         ctrl_layout = QHBoxLayout()
         self.start_btn = QPushButton("Start Capture")
@@ -84,23 +91,48 @@ class InterfaceListener(QWidget):
         self.stop_btn.setEnabled(True)
         
         self.worker = HexParticleWorker(self.interface)
-        self.worker.register_protocol_cb(protos.ETHER_TYPE_IPV4, self.on_ipv4_packet)
+        self.worker.register_ethertype_packet_cb(protos.ETHER_TYPE_IPV4, self.on_ipv4_packet)
         self.worker.start()
+
+
+    def add_packet_row(self, src, dst, proto, length, info):
+        row = self.packet_table.rowCount()
+        self.packet_table.insertRow(row)
+
+        self.packet_table.setItem(row, 0, QTableWidgetItem(str(src)))
+        self.packet_table.setItem(row, 1, QTableWidgetItem(str(dst)))
+        self.packet_table.setItem(row, 2, QTableWidgetItem(str(proto)))
+        self.packet_table.setItem(row, 3, QTableWidgetItem(str(length)))
+        self.packet_table.setItem(row, 4, QTableWidgetItem(str(info)))
+
+        self.packet_table.scrollToBottom()
 
     
     def on_ipv4_packet(self, packet):
-        payload = packet.get('Payload', {})
-        proto = payload.get("Protocol", "?")
-        name = payload.get("Protocol Name", "Unknown")
+        eth_packet = packet['Payload']
+        ipv4 = eth_packet['Payload']
+        payload_type = ipv4['Payload Type']
 
-        display_text = f"Proto: {proto} | Name: {name}"
-        self.packet_log.addItem(display_text)
-
-        self.packet_log.scrollToBottom()
+        if payload_type == protos.IPV4_TCP:
+            return self.on_tcp_packet(packet)
+        elif payload_type == protos.IPV4_UDP:
+            return self.on_udp_packet(packet)
+        elif payload_type == protos.IPV4_ICMP:
+            pass
 
 
     def on_tcp_packet(self, packet):
-        pass
+        source = packet['Source']
+        destination = packet['Destination']
+        protocol = "TCP"
+        length = packet['Length']
+        info = 'A TCP Packet'
+
+        self.add_packet_row(source, destination, protocol, length, info)
+
+
+    def on_udp_packet(self, packet):
+        self.packet_log.scrollToBottom()
 
 
     def stop_sniffing(self):
@@ -109,18 +141,3 @@ class InterfaceListener(QWidget):
             self.worker.wait()
         self.start_btn.setEnabled(True)
         self.stop_btn.setEnabled(False)
-
-
-    def process_packet(self, packet_str):
-        try:
-            data = json.loads(packet_str)
-            if int(data.get('Payload Type', 0)) == 0x0800:
-                payload = data.get('Payload', {})
-                proto = payload.get("Protocol", "?")
-                name = payload.get("Protocol Name", "Unknown")
-                
-                display_text = f"Proto: {proto} | Name: {name}"
-                self.packet_log.addItem(display_text)
-                self.packet_log.scrollToBottom()
-        except Exception as e:
-            pass

@@ -30,8 +30,10 @@ IPV4_PROTOCOL_NAMES = {
 }
 
 
-# Ethernet 
-ETHER_TYPE_IPV4 = 0x0800
+# EtherType(https://en.wikipedia.org/wiki/EtherType#Values)
+ETHER_TYPE_IPV4 = 0x0800 # Internet Protocol Version 4 
+ETHER_TYPE_IPV6 = 0x86DD # Internet Protocol Version 6
+ETHER_TYPE_ARP 	= 0x0806 # Address Resolution Protocol
 
 
 def get_protocol_name(proto_number: int) -> str:

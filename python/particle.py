@@ -88,27 +88,17 @@ class InterfaceManager:
         lib_particle.free_interfaces_names(self.interfaces, self.count)
 
 
-def on_ipv4(packet):
-    print("IPv4 from:", packet["Source"])
-
-def on_tcp(packet):
-    tcp = packet.get("Payload")
-    if tcp:
-        print("TCP sport:", tcp["Source Port"])
-
 if __name__ == "__main__":
+    def on_ipv4(packet):
+        print("IPv4 from:", packet["Source"])
+
+    def on_tcp(packet):
+        tcp = packet.get("Payload")
+        if tcp:
+            print("TCP sport:", tcp["Source Port"])
+
     sniffer = HexParticleSniffer("en0") # on my macOS machine
     sniffer.register(0x0800, on_ipv4)
     sniffer.register(6, on_tcp)
     while True:
         packet = sniffer.next_packet()
-        # if packet is not None:
-        #     try:
-        #         packet_json = json.loads(packet)
-        #         if int(packet_json['Payload Type']) == protocols.ETHER_TYPE_IPV4:
-        #             payload = packet_json['Payload']
-        #             protocol = payload.get("Protocol")
-        #             protocol_name = payload.get("Protocol Name")
-        #             print(f"{protocol} = {protocol_name}")
-        #     except json.JSONDecodeError as err:
-        #         print(err)
