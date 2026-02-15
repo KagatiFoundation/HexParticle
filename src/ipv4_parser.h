@@ -25,10 +25,6 @@ typedef struct __attribute__((packed)) IPv4 {
 // sanity checks
 _Static_assert(sizeof(IPv4_t) == 20, "IPv4_t must be 20 bytes");
 
-IPv4_t* parse_ipv4_packet(const char* stream, size_t len);
-
-void free_ipv4_packet(IPv4_t* tcp);
-
 // IPv4 protocol numbers list
 #define IPV4_ICMP           0x01
 #define IPV4_IGMP           0x02
@@ -74,6 +70,8 @@ void free_ipv4_packet(IPv4_t* tcp);
 
 
 #define IPV4_PROTOCOL_NAME(code) IPV4_PROTOCOL_NAME_##code
+
+ProtocolNode_t* parse_ipv4_packet(const char* stream, size_t len);
 
 char* ipv4_proto_name(uint16_t proto);
 
