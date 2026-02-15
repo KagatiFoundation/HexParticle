@@ -24,7 +24,7 @@ HEX_P void free_hex_instance(const HexInstnace_t* handle) {
 	pcap_close(handle->handle);
 }
 
-HEX_P Packet_t* read_next_packet(HexInstnace_t* instance) {
+HEX_P Packet_t* read_next_packet(const HexInstnace_t* instance) {
 	struct pcap_pkthdr *header;
 	const char* packet;
 	int res = pcap_next_ex(instance->handle, &header, &packet);
@@ -43,8 +43,14 @@ Packet_t* parse_packet(const char* stream, size_t len) {
         exit(EXIT_FAILURE);
     }
 
+	EtherHeader_t hdr;
+    memcpy(hdr.dst_mac, stream, 6);
+    memcpy(hdr.src_mac, stream + 6, 6);
+    hdr.type = (stream[12] << 8) | stream[13];
+    hdr.len = len;
+
 	Packet_t *packet = malloc(sizeof(Packet_t));
-	memcpy(&packet->eth_header, stream, sizeof(EtherHeader_t));
+	packet->eth_header = hdr;
 
 	int payload_off = ETHER_PAYLOAD_OFF;
     while (packet->eth_header.type == 0x8100) {

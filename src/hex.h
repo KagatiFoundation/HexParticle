@@ -33,7 +33,7 @@ HEX_P HexInstnace_t create_hex_instance(const char* device);
 
 HEX_P void free_hex_instance(const HexInstnace_t* handle);
 
-HEX_P Packet_t* read_next_packet();
+HEX_P Packet_t* read_next_packet(const HexInstnace_t* handle);
 
 Packet_t* parse_packet(const char* stream, size_t len);
 
