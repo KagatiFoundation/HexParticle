@@ -1,6 +1,6 @@
 OS = $(shell uname)
 EXT_LIBS = -lpcap
-BASE_FLAGS = -fPIC -Wall -Wextra -pedantic -ggdb -O3
+BASE_FLAGS = -fPIC -Wall -Wextra -pedantic -ggdb -O3 -DRUN_MAIN
 O_FLAGS := $(BASE_FLAGS)
 
 ifeq ($(OS),Darwin)
@@ -13,7 +13,7 @@ else
 	CC_FLAGS = -shared $(BASE_FLAGS)
 endif
 
-SRCS = $(wildcard *.c vendor/cJSON/*.c ip/*.c arp/*.c)
+SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c, build/%.o, $(SRCS)) # ---> patsubst(pattern, replacement, text) = pattern substitute
 
 TARGET = ../lib/libparticle.so

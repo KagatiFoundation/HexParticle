@@ -1,10 +1,11 @@
-#ifndef ARP_PROTO_H
-#define ARP_PROTO_H
+#ifndef ARP_PARSER_H
+#define ARP_PARSER_H
+
+#include "packet.h"
 
 #include <stdint.h>
 #include <stdio.h>
 #include <arpa/inet.h>
-#include "../vendor/cJSON/cJSON.h"
 
 typedef struct __attribute__((__packed__)) ARP {
     uint16_t    htype;  // Hardware type (for e.g.: 1 for Ethernet)
@@ -18,6 +19,8 @@ typedef struct __attribute__((__packed__)) ARP {
     uint8_t     tpa[4]; // Target protocol address (IPv4)
 } ARP_t;
 
-char* parse_arp_to_json(const ARP_t *arp);
+HEX_P ARP_t* parse_arp_packet(const char *stream);
+
+HEX_P void free_arp_packet(const ARP_t* packet);
 
 #endif
