@@ -1,9 +1,10 @@
 #ifndef ARP_PARSER_H
 #define ARP_PARSER_H
 
-#include "packet.h"
+#include "hex.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 
