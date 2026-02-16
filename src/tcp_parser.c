@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #include "tcp_parser.h"
 
 #include <string.h>

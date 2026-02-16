@@ -1,7 +1,7 @@
-/**
+/*
  * SPDX-License-Identifier: MIT
- * SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
-*/
+ * Copyright (c) 2023 Kagati Foundation
+ */
 
 #include <stdio.h>
 #include <stdint.h>

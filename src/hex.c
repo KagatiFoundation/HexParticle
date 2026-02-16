@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #include "hex.h"
 #include "ipv4_parser.h"
 #include "ether_parser.h"

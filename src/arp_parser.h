@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #ifndef ARP_PARSER_H
 #define ARP_PARSER_H
 

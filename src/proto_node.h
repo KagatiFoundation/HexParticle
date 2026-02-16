@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #ifndef PROTO_NODE_H
 #define PROTO_NODE_H
 

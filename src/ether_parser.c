@@ -1,6 +1,12 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #include "proto_node.h"
 #include "ether_parser.h"
 #include "ipv4_parser.h"
+#include "arp_parser.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,6 +41,12 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
 
 	if (eth_header->type == ETHER_TYPE_IPV4) {
 		ether_node->next = parse_ipv4_packet((stream + payload_off), 0);
+	}
+	else if (eth_header->type == ETHER_TYPE_ARP) {
+		ether_node->next = parse_arp_packet((stream + payload_off));
+	}
+	else if (eth_header->type == ETHER_TYPE_IPV6) {
+		// parse ipv6
 	}
 
 	return ether_node;

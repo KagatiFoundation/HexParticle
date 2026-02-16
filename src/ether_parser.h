@@ -1,3 +1,8 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2023 Kagati Foundation
+ */
+
 #ifndef ETHER_PARSER_H
 #define ETHER_PARSER_H
 
