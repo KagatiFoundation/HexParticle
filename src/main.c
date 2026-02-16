@@ -1,6 +1,7 @@
 #include "hex.h"
 #include "ipv4_parser.h"
 #include "tcp_parser.h"
+#include "udp_parser.h"
 #include <stdlib.h>
 
 static void mac_to_string(const uint8_t mac[MAC_ADDR_LEN], char *out) {
@@ -21,12 +22,7 @@ void dump_ether_header(const EtherHeader_t* header) {
     mac_to_string(header->src_mac, src);
     mac_to_string(header->dst_mac, dst);
 
-    printf("{");
-    printf("\"dst_mac\":\"%s\",", dst);
-    printf("\"src_mac\":\"%s\",", src);
-    printf("\"type\":%u,", header->type);
-    printf("\"len\":%d", header->len);
-    printf("}\n");
+    printf("Ethernet(FROM %s TO %s)\n", src, dst);
 }
 
 void dump_ipv4_header(const IPV4Header_t* header) {
@@ -35,7 +31,16 @@ void dump_ipv4_header(const IPV4Header_t* header) {
         return;
 	}
 
-	printf("IPv4 Protocol: %d\n", header->proto);
+	printf("  IPv4(FROM %d.%d.%d.%d TO %d.%d.%d.%d)\n", 
+			header->src[0],
+			header->src[1],
+			header->src[2],
+			header->src[3],
+			header->dst[0],
+			header->dst[1],
+			header->dst[2],
+			header->dst[3]
+	);
 }
 
 void dump_tcp_header(const TCPHeader_t* header) {
@@ -44,7 +49,16 @@ void dump_tcp_header(const TCPHeader_t* header) {
 		return;
 	}
 
-	printf("From %d to %d\n", header->sport, header->dport);
+	printf("    TCP(FROM %d TO %d)", header->sport, header->dport);
+}
+
+void dump_udp_header(const UDPHeader_t* header) {
+	if (header == NULL) {
+		printf("NULL");
+		return;
+	}
+
+	printf("    UDP(FROM %d TO %d)", header->sport, header->dport);
 }
 
 void dump_node(ProtocolNode_t* node) {
@@ -66,8 +80,14 @@ void dump_node(ProtocolNode_t* node) {
 			dump_tcp_header(tcp_hdr);
 		}
 
+		if (current_node->type == PROTO_UDP) {
+			UDPHeader_t* udp_hdr = (UDPHeader_t*) current_node->hdr;
+			dump_udp_header(udp_hdr);
+		}
+
 		current_node = current_node->next;
 	}
+	printf("\n");
 }
 
 int main(int argc, char** argv) {

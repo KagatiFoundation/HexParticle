@@ -1,6 +1,7 @@
 #include "ipv4_parser.h"
 #include "tcp_parser.h"
 #include "proto_node.h"
+#include "udp_parser.h"
 
 #include <string.h>
 
@@ -22,7 +23,10 @@ ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream, size_t len) {
 		ip_node->next = tcp_node;
 	}
 	else if (ip_header->proto == IPV4_UDP) {
-		// parse UDP
+        const uint8_t* udp_stream = stream + UDP_HEADER_LEN;
+
+		ProtocolNode_t* udp_node = parse_udp_packet(udp_stream);
+		ip_node->next = udp_node;
 	}
 	return ip_node;
 }
