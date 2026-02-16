@@ -6,10 +6,12 @@
 #include <arpa/inet.h>
 #include <stdio.h>
 
+#include "proto_node.h"
+
 /**
  * IPv4 header
  */
-typedef struct __attribute__((packed)) IPv4 {
+typedef struct __attribute__((packed)) IPV4Header {
     uint8_t     ver_ihl;
     uint8_t     dscp_ecn;
     uint16_t    len;
@@ -20,10 +22,10 @@ typedef struct __attribute__((packed)) IPv4 {
     uint16_t    chk;
     uint8_t     src[4];
     uint8_t     dst[4];
-} IPv4_t;
+} IPV4Header_t;
 
 // sanity checks
-_Static_assert(sizeof(IPv4_t) == 20, "IPv4_t must be 20 bytes");
+_Static_assert(sizeof(IPV4Header_t) == 20, "IPv4_t must be 20 bytes");
 
 // IPv4 protocol numbers list
 #define IPV4_ICMP           0x01
@@ -71,7 +73,7 @@ _Static_assert(sizeof(IPv4_t) == 20, "IPv4_t must be 20 bytes");
 
 #define IPV4_PROTOCOL_NAME(code) IPV4_PROTOCOL_NAME_##code
 
-ProtocolNode_t* parse_ipv4_packet(const char* stream, size_t len);
+ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream, size_t len);
 
 char* ipv4_proto_name(uint16_t proto);
 

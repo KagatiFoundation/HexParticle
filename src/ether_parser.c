@@ -1,8 +1,10 @@
 #include "proto_node.h"
 #include "ether_parser.h"
+#include "ipv4_parser.h"
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
 	EtherHeader_t* eth_header = malloc(sizeof(EtherHeader_t));
@@ -23,6 +25,7 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
     }
 
 	ProtocolNode_t* ether_node = malloc(sizeof(ProtocolNode_t));
+	ether_node->type = PROTO_ETH;
 	ether_node->hdr = eth_header;
     
     if (eth_header->type <= 1500) {

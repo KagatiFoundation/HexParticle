@@ -2,6 +2,7 @@
 #define ETHER_PARSER_H
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "proto_node.h"
 

@@ -1,6 +1,9 @@
+#ifndef PROTO_NODE_H
+#define PROTO_NODE_H
+
 #include <stdint.h>
 
-typedef enum {
+typedef enum ProtocolType {
     PROTO_ETH,
     PROTO_IPV4,
     PROTO_IPV6,
@@ -8,13 +11,15 @@ typedef enum {
     PROTO_TCP,
     PROTO_UDP,
     PROTO_RAW
-} ProtoType_t;
+} ProtocolType_t;
 
 typedef struct ProtocolNode {
-    ProtoType_t 			type;
+    enum ProtocolType 		type;
     void 					*hdr;
     uint32_t				hdr_len;
-    ProtocolNode_t* 		next;
+    struct ProtocolNode* 	next;
 } ProtocolNode_t;
 
 void free_protocol_node(ProtocolNode_t* node);
+
+#endif

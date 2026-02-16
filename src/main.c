@@ -8,8 +8,8 @@ static void mac_to_string(const uint8_t mac[MAC_ADDR_LEN], char *out) {
             mac[3], mac[4], mac[5]);
 }
 
-void dump_ether_header(const EtherHeader_t *h) {
-    if (!h) {
+void dump_ether_header(const EtherHeader_t *header) {
+    if (header == NULL) {
         printf("null");
         return;
     }
@@ -17,15 +17,15 @@ void dump_ether_header(const EtherHeader_t *h) {
     char src[18];
     char dst[18];
 
-    mac_to_string(h->src_mac, src);
-    mac_to_string(h->dst_mac, dst);
+    mac_to_string(header->src_mac, src);
+    mac_to_string(header->dst_mac, dst);
 
     printf("{");
     printf("\"dst_mac\":\"%s\",", dst);
     printf("\"src_mac\":\"%s\",", src);
-    printf("\"type\":%u,", h->type);
-    printf("\"len\":%d", h->len);
-    printf("}");
+    printf("\"type\":%u,", header->type);
+    printf("\"len\":%d", header->len);
+    printf("}\n");
 }
 
 int main(int argc, char** argv) {

@@ -1,5 +1,6 @@
 #include "hex.h"
 #include "ipv4_parser.h"
+#include "ether_parser.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -30,7 +31,7 @@ HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* instance) {
 	int res = pcap_next_ex(instance->handle, &header, &stream);
 	
 	if (res == 1) {
-		ProtocolNode_t* node = parse_packet(stream, header->caplen);
+		ProtocolNode_t* node = parse_ether_packet(stream, header->caplen);
 		return node;
 	}
 

@@ -1,14 +1,15 @@
 #include "tcp_parser.h"
+
 #include <string.h>
 
-TCP_t* parse_tcp_packet(const char* stream) {
-    TCP_t* tcp = malloc(sizeof(TCP_t));
-	memcpy(tcp, stream, sizeof(TCP_t));
-    return tcp;
-}
+ProtocolNode_t* parse_tcp_packet(const uint8_t* stream) {
+    TCPHeader_t* tcp_header = malloc(sizeof(TCPHeader_t));
+	memcpy(tcp_header, stream, sizeof(TCPHeader_t));
 
-void free_tcp_packet(TCP_t* packet) {
-    if (packet != NULL) {
-        free(packet);
-    }
+	ProtocolNode_t* tcp_node = malloc(sizeof(ProtocolNode_t));
+	tcp_node->type = PROTO_TCP;
+	tcp_node->hdr = tcp_header;
+	tcp_node->next = NULL;
+
+    return tcp_node;
 }

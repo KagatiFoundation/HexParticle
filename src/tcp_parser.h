@@ -5,10 +5,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "proto_node.h"
+
 /**
  * TCP header
  */
-typedef struct __attribute__((packed)) TCP {
+typedef struct __attribute__((packed)) TCPHeader {
     uint16_t    sport;
     uint16_t    dport;
     uint32_t    seq;
@@ -19,10 +21,8 @@ typedef struct __attribute__((packed)) TCP {
     uint16_t    chk;
     uint16_t    urg;
     uint8_t     options[];
-} TCP_t;
+} TCPHeader_t;
 
-TCP_t* parse_tcp_packet(const char* stream);
-
-void free_tcp_packet(TCP_t* packet);
+ProtocolNode_t* parse_tcp_packet(const uint8_t* stream);
 
 #endif

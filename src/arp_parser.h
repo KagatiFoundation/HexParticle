@@ -2,13 +2,14 @@
 #define ARP_PARSER_H
 
 #include "hex.h"
+#include "proto_node.h"
 
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 
-typedef struct __attribute__((__packed__)) ARP {
+typedef struct __attribute__((__packed__)) ARPHeader {
     uint16_t    htype;  // Hardware type (for e.g.: 1 for Ethernet)
     uint16_t    ptype;  // Protocol type (for: e.g.: 0x0800 for IPv4)
     uint8_t     hlen;   // Hardware address length (bytes) — 6 for MAC
@@ -18,10 +19,8 @@ typedef struct __attribute__((__packed__)) ARP {
     uint8_t     spa[4]; // Sender protocol address (IPv4)
     uint8_t     tha[6]; // Target hardware address (MAC)
     uint8_t     tpa[4]; // Target protocol address (IPv4)
-} ARP_t;
+} ARPHeader_t;
 
-HEX_P ARP_t* parse_arp_packet(const char *stream);
-
-HEX_P void free_arp_packet(const ARP_t* packet);
+HEX_P ProtocolNode_t* parse_arp_packet(const uint8_t* stream);
 
 #endif
