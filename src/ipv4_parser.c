@@ -16,8 +16,13 @@ ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream, size_t len) {
 
 	if (ip_header->proto == IPV4_TCP) {
 		size_t ip_head_len = ihl * 4;
-        const char* tcp_stream = stream + ip_head_len;
-		// TCP_t* tcp = parse_tcp_packet(tcp_stream);
+        const uint8_t* tcp_stream = stream + ip_head_len;
+
+		ProtocolNode_t* tcp_node = parse_tcp_packet(tcp_stream);
+		ip_node->next = tcp_node;
 	}
-	return ip_header;
+	else if (ip_header->proto == IPV4_UDP) {
+		// parse UDP
+	}
+	return ip_node;
 }

@@ -2,10 +2,14 @@
 
 #include <stdlib.h>
 
-void free_protocol_node(ProtocolNode_t* node) {
-	if (node == NULL) return;
-
-	if (node->hdr != NULL) free(node->hdr);
-
-	if (node->next != NULL) free_protocol_node(node->next);
+void free_protocol_node(ProtocolNode_t* head) {
+	ProtocolNode_t* current = head;
+    while (current != NULL) {
+        ProtocolNode_t* next_node = current->next;
+        
+        if (current->hdr) free(current->hdr);
+        free(current);
+        
+        current = next_node;
+    }
 }
