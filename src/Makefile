@@ -16,7 +16,7 @@ endif
 SRCS = $(wildcard *.c)
 OBJS = $(patsubst %.c, build/%.o, $(SRCS)) # ---> patsubst(pattern, replacement, text) = pattern substitute
 
-TARGET = ../lib/libparticle.so
+TARGET = ../lib/libhexp.so
 
 all: $(TARGET)
 

@@ -7,6 +7,8 @@
 #include "ipv4_parser.h"
 #include "tcp_parser.h"
 #include "udp_parser.h"
+#include "arp_parser.h"
+
 #include <stdlib.h>
 
 static void mac_to_string(const uint8_t mac[MAC_ADDR_LEN], char *out) {
@@ -46,6 +48,38 @@ void dump_ipv4_header(const IPV4Header_t* header) {
 			header->dst[2],
 			header->dst[3]
 	);
+}
+
+void dump_arp_header(const ARPHeader_t* header) {
+	if (header == NULL) {
+        printf("NULL\n");
+        return;
+	}
+
+    char source[18];
+    mac_to_string(header->sha, source);
+
+	char target[18];
+	mac_to_string(header->tha, target);
+
+	if (header->op == ARP_REQUEST) {
+		printf("  ARP(Who has %d.%d.%d.%d? Tell %s.)\n", 
+			header->tpa[0],
+			header->tpa[1],
+			header->tpa[2],
+			header->tpa[3],
+			source
+		);
+	}
+	else if (header->op == ARP_REPLY) {
+		printf("  ARP(%s has %d.%d.%d.%d.)\n", 
+			target, 
+			header->tpa[0],
+			header->tpa[1],
+			header->tpa[2],
+			header->tpa[3]
+		);
+	}
 }
 
 void dump_tcp_header(const TCPHeader_t* header) {

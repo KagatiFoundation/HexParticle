@@ -1,2 +1,0 @@
-class TCP:
-	pass

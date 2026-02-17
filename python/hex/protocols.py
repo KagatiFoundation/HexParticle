@@ -1,3 +1,5 @@
+import ctypes
+
 IPV4_ICMP        = 0x01
 IPV4_IGMP        = 0x02
 IPV4_TCP         = 0x06
@@ -40,4 +42,56 @@ def get_protocol_name(proto_number: int) -> str:
     return IPV4_PROTOCOL_NAMES.get(proto_number, "Unknown Protocol")
 
 
-__all__ = ['IPV4_PROTOCOLS', 'ETHER_TYPE_IPV4']
+class ProtocolType:
+    ETH = 1
+    IPV4 = 2
+    ARP = 3
+    TCP = 4
+
+
+class ProtocolNode(ctypes.Structure):
+    pass
+
+
+ProtocolNode._fields_ = [
+    ("type", ctypes.c_int),
+    ("hdr", ctypes.c_void_p),
+    ("hdr_len", ctypes.c_uint32),
+    ("next", ctypes.POINTER(ProtocolNode))
+]
+
+
+class EtherHeader(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('src_mac', ctypes.c_char_p),
+        ('dst_mac', ctypes.c_char_p),
+        ('type', ctypes.c_uint16),
+        ('len', ctypes.c_size_t)
+	]
+
+
+class TCPHeader(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ("sport", ctypes.c_uint16),
+        ("dport", ctypes.c_uint16),
+        ("seq", ctypes.c_uint32),
+        ("ack", ctypes.c_uint32),
+        ("off_res", ctypes.c_uint8),
+        ("flags", ctypes.c_uint8),
+        ("win", ctypes.c_uint16),
+        ("chk", ctypes.c_uint16),
+        ("urg", ctypes.c_uint16),
+    ]
+
+
+__all__ = [
+    'IPV4_PROTOCOLS', 
+    'ETHER_TYPE_IPV4', 
+    'TCPHeader', 
+    'ProtocolNode', 
+    'ProtocolType',
+    'PacketWrapper',
+    'EtherHeader'
+]

@@ -5,6 +5,8 @@
 
 #include "arp_parser.h"
 
+#include <string.h>
+
 ProtocolNode_t* parse_arp_packet(const uint8_t *stream) {
 	const size_t arp_header_size = sizeof(ARPHeader_t);
 

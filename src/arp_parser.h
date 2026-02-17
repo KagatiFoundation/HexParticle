@@ -14,6 +14,9 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
+#define ARP_REQUEST		1
+#define ARP_REPLY		2
+
 typedef struct __attribute__((__packed__)) ARPHeader {
     uint16_t    htype;  // Hardware type (for e.g.: 1 for Ethernet)
     uint16_t    ptype;  // Protocol type (for: e.g.: 0x0800 for IPv4)
