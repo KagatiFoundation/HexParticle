@@ -37,8 +37,8 @@ lib_hexp.free_interfaces_names.argtypes = [ctypes.POINTER(ctypes.c_char_p), ctyp
 lib_hexp.free_interfaces_names.restype = None
 
 # free the packet
-lib_hexp.free_packet_node.argtypes = [ctypes.POINTER(protocols.ProtocolNode)]
-lib_hexp.free_packet_node.restype = None
+lib_hexp.free_protocol_node.argtypes = [ctypes.POINTER(protocols.ProtocolNode)]
+lib_hexp.free_protocol_node.restype = None
 
 
 class InterfaceManager:
@@ -69,6 +69,8 @@ class PacketWrapper:
     def _cast_header(self, node):
         if node.type == protocols.ProtocolType.ETH:
             return ctypes.cast(node.hdr, ctypes.POINTER(protocols.EtherHeader)).contents
+        elif node.type == protocols.ProtocolType.IPV4:
+            return ctypes.cast(node.hdr, ctypes.POINTER(protocols.IPV4Header)).contents
         elif node.type == protocols.ProtocolType.TCP:
             return ctypes.cast(node.hdr, ctypes.POINTER(protocols.TCPHeader)).contents
         return None
@@ -101,7 +103,7 @@ class HexParticle():
         
         print(pwrapper.layers)
 
-        self.handle.free_packet_node(node)
+        lib_hexp.free_protocol_node(node)
 
 
     def close(self):

@@ -38,15 +38,20 @@ ETHER_TYPE_IPV6 = 0x86DD # Internet Protocol Version 6
 ETHER_TYPE_ARP 	= 0x0806 # Address Resolution Protocol
 
 
+# ctypes IPV4 address
+CT_IPV4_ADDRESS = ctypes.c_uint8 * 4
+
+
 def get_protocol_name(proto_number: int) -> str:
     return IPV4_PROTOCOL_NAMES.get(proto_number, "Unknown Protocol")
 
 
 class ProtocolType:
-    ETH = 1
-    IPV4 = 2
-    ARP = 3
-    TCP = 4
+    ETH		= 0
+    IPV4 	= 1
+    IPV6 	= 2
+    ARP 	= 3
+    TCP 	= 4
 
 
 class ProtocolNode(ctypes.Structure):
@@ -68,6 +73,21 @@ class EtherHeader(ctypes.Structure):
         ('dst_mac', ctypes.c_char_p),
         ('type', ctypes.c_uint16),
         ('len', ctypes.c_size_t)
+	]
+
+
+class IPV4Header(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('ver_ihl', ctypes.c_uint8),
+        ('dscp_ecn', ctypes.c_uint8),
+        ('len', ctypes.c_uint16),
+        ('id', ctypes.c_uint16),
+        ('flags_off', ctypes.c_uint16),
+        ('ttl', ctypes.c_uint8),
+        ('chk', ctypes.c_uint16),
+        ('src', CT_IPV4_ADDRESS),
+        ('dst', CT_IPV4_ADDRESS)
 	]
 
 
