@@ -4,7 +4,7 @@
 import ctypes
 import typing
 
-import protocols
+from . import protocols
 
 
 class HexInstance(ctypes.Structure):
@@ -13,7 +13,7 @@ class HexInstance(ctypes.Structure):
     ]
 
 
-lib_hexp = ctypes.CDLL("../../lib/libhexp.so")
+lib_hexp = ctypes.CDLL("../lib/libhexp.so")
 
 '''
 These functions are for capturing and managing packets
@@ -99,21 +99,14 @@ class HexParticle():
         self._callbacks: typing.Dict[int, typing.List[typing.Callable[[dict], None]]] = {}
 
 
-    def register(self, payload_type: int, callback: typing.Callable[[dict], None]):
-        self._callbacks.setdefault(payload_type, []).append(callback)
-
-
-    def _dispatch(self, packet: dict):
-        print(packet)
-
-
-    def next_packet(self):
+    def next_packet(self) -> PacketWrapper:
         node = lib_hexp.read_next_packet(self.handle)
         pwrapper = PacketWrapper(node)
         
-        print(pwrapper.layers)
-
+        # free the node
         lib_hexp.free_protocol_node(node)
+
+        return pwrapper
 
 
     def close(self):

@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
 
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLabel)
-from particle import InterfaceManager
+from hex.lib_wrapper import InterfaceManager
 from interface_listener import InterfaceListener
 
 class InterfacePicker(QWidget):

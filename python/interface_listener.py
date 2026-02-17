@@ -1,39 +1,32 @@
 # SPDX-License-Identifier: MIT
 # SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
 
-import json
-import typing
-
-from particle import HexParticleSniffer
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, 
                                     QTableWidget, QTableWidgetItem, QPushButton, QLabel)
 from PyQt6.QtCore import QThread, pyqtSignal
 
-import protocols as protos
+from hex.lib_wrapper import HexParticle, PacketWrapper
+from hex import protocols as protos
 
 class HexParticleWorker(QThread):
-    packet_received = pyqtSignal(dict)
+    packet_received = pyqtSignal(PacketWrapper)
 
     def __init__(self, interface):
         super().__init__()
         self.interface = interface
         self.running = True
-        self.sniffer = HexParticleSniffer(self.interface)
+        self.hexp = HexParticle(interface)
 
 
     def run(self):
         try:
             while self.running:
-                packet = self.sniffer.next_packet()
+                packet = self.hexp.next_packet()
                 if packet:
                     self.packet_received.emit(packet)
-            self.sniffer.close()
+            self.hexp.close()
         except Exception as e:
             print(f"Worker Error: {e}")
-
-
-    def register_ethertype_packet_cb(self, proto_type: int, cb: typing.Callable):
-        self.sniffer.register(proto_type, cb)
 
 
     def stop(self):
@@ -91,8 +84,36 @@ class InterfaceListener(QWidget):
         self.stop_btn.setEnabled(True)
         
         self.worker = HexParticleWorker(self.interface)
-        self.worker.register_ethertype_packet_cb(protos.ETHER_TYPE_IPV4, self.on_ipv4_packet)
+        self.worker.packet_received.connect(self.process_incoming_packet)
         self.worker.start()
+
+
+    def process_incoming_packet(self, pwrapper):
+        if len(pwrapper.layers) > 1 and isinstance(pwrapper.layers[1], protos.IPV4Header):
+            self.handle_ipv4_logic(pwrapper)
+
+        
+    def fmt_ip(self, ip_array):
+        return ".".join(map(str, ip_array))
+
+
+    def handle_ipv4_logic(self, pwrapper):
+        ipv4 = pwrapper.layers[1]
+        src_ip = self.fmt_ip(ipv4.src)
+        dst_ip = self.fmt_ip(ipv4.dst)
+        
+        protocol_str = protos.get_protocol_name(ipv4.ttl)
+        info = f"TTL: {ipv4.ttl}, ID: {ipv4.id}"
+        
+        if len(pwrapper.layers) > 2:
+            next_layer = pwrapper.layers[2]
+            if isinstance(next_layer, protos.TCPHeader):
+                protocol_str = "TCP"
+                info = f"Port: {next_layer.sport} -> {next_layer.dport} [Seq={next_layer.seq}]"
+            else:
+                info = "Something else"
+
+        self.add_packet_row(src_ip, dst_ip, protocol_str, ipv4.len, info)
 
 
     def add_packet_row(self, src, dst, proto, length, info):
@@ -106,33 +127,6 @@ class InterfaceListener(QWidget):
         self.packet_table.setItem(row, 4, QTableWidgetItem(str(info)))
 
         self.packet_table.scrollToBottom()
-
-    
-    def on_ipv4_packet(self, packet):
-        eth_packet = packet['Payload']
-        ipv4 = eth_packet['Payload']
-        payload_type = ipv4['Payload Type']
-
-        if payload_type == protos.IPV4_TCP:
-            return self.on_tcp_packet(packet)
-        elif payload_type == protos.IPV4_UDP:
-            return self.on_udp_packet(packet)
-        elif payload_type == protos.IPV4_ICMP:
-            pass
-
-
-    def on_tcp_packet(self, packet):
-        source = packet['Source']
-        destination = packet['Destination']
-        protocol = "TCP"
-        length = packet['Length']
-        info = 'A TCP Packet'
-
-        self.add_packet_row(source, destination, protocol, length, info)
-
-
-    def on_udp_packet(self, packet):
-        self.packet_log.scrollToBottom()
 
 
     def stop_sniffing(self):
