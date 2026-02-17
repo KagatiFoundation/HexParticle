@@ -5,6 +5,7 @@ import ctypes
 import typing
 
 from . import protocols
+# import protocols
 
 
 class HexInstance(ctypes.Structure):
@@ -60,6 +61,7 @@ class PacketWrapper:
         protocols.ProtocolType.IPV4:    protocols.IPV4Header,
         protocols.ProtocolType.ARP:     protocols.ARPHeader,
         protocols.ProtocolType.TCP:     protocols.TCPHeader,
+        protocols.ProtocolType.UDP:     protocols.UDPHeader,
     }
     
     def __init__(self, head_node_ptr):
@@ -75,10 +77,17 @@ class PacketWrapper:
 
     def _cast_header(self, node):
         header_class = PacketWrapper.TYPE_MAP.get(node.type)
-        if header_class:
-            ptr = ctypes.cast(node.hdr, ctypes.POINTER(header_class))
-            return header_class.from_buffer_copy(ptr.contents)
-        return None
+    
+        if not header_class:
+            print(f"Unknown protocol type: {node.type}")
+            return None
+        
+        if not node.hdr:
+            print(f"Error: Node type {node.type} has a NULL header pointer!")
+            return None
+
+        ptr = ctypes.cast(node.hdr, ctypes.POINTER(header_class))
+        return header_class.from_buffer_copy(ptr.contents)
 
 
     def __repr__(self):
@@ -106,6 +115,9 @@ class HexParticle():
 
     def next_packet(self) -> PacketWrapper:
         node = lib_hexp.read_next_packet(self.handle)
+        if not node:
+            return None
+    
         pwrapper = PacketWrapper(node)
         
         # free the node
@@ -122,3 +134,9 @@ class HexParticle():
 
     def __del__(self):
         self.close()
+
+
+if __name__ == "__main__":
+    hex = HexParticle("en0")
+    while True:
+        packet = hex.next_packet()

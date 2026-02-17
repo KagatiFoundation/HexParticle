@@ -59,6 +59,7 @@ class ProtocolType:
     IPV6 	= 2
     ARP 	= 3
     TCP 	= 4
+    UDP 	= 5
 
 # --- Hierarchical Node Structure ---
 class ProtocolNode(ctypes.Structure):
@@ -69,10 +70,10 @@ class ProtocolNode(ctypes.Structure):
     pass
 
 ProtocolNode._fields_ = [
-    ("type", 	ctypes.c_int),               # Internal ProtocolType
-    ("hdr", 	ctypes.c_void_p),             # Pointer to the actual header struct
-    ("hdr_len", ctypes.c_uint32),         # Size of the header (for variable length parsing)
-    ("next", 	ctypes.POINTER(ProtocolNode)) # Link to the encapsulated protocol
+    ("type", 	ctypes.c_int),                  # Internal ProtocolType
+    ("hdr", 	ctypes.c_void_p),               # Pointer to the actual header struct
+    ("hdr_len", ctypes.c_uint32),               # Size of the header (for variable length parsing)
+    ("next", 	ctypes.POINTER(ProtocolNode))   # Link to the encapsulated protocol
 ]
 
 # --- Protocol Header Definitions ---
@@ -85,22 +86,23 @@ class EtherHeader(ctypes.Structure):
         ('dst_mac', 	CT_MAC_ADDRESS),
         ('type', 		ctypes.c_uint16),
         ('len', 		ctypes.c_size_t)
-	]
+    ]
 
 class IPV4Header(ctypes.Structure):
     """Maps to IPv4_t. Represents the standard 20-byte IPv4 header."""
     _pack_ = 1
     _fields_ = [
-        ('ver_ihl', 	ctypes.c_uint8),    # Version (4 bits) + IHL (4 bits)
-        ('dscp_ecn', 	ctypes.c_uint8),   # DiffServ + ECN
+        ('ver_ihl', 	ctypes.c_uint8),        # Version (4 bits) + IHL (4 bits)
+        ('dscp_ecn', 	ctypes.c_uint8),        # DiffServ + ECN
         ('len', 		ctypes.c_uint16),       # Total Packet Length
-        ('id', 			ctypes.c_uint16),        # Identification
-        ('flags_off', 	ctypes.c_uint16), # Flags + Fragment Offset
+        ('id', 			ctypes.c_uint16),       # Identification
+        ('flags_off', 	ctypes.c_uint16),       # Flags + Fragment Offset
         ('ttl', 		ctypes.c_uint8),        # Time to Live
+        ('proto', 		ctypes.c_uint8),        # Protocol
         ('chk', 		ctypes.c_uint16),       # Header Checksum
         ('src', 		CT_IPV4_ADDRESS),       # Source IP
         ('dst', 		CT_IPV4_ADDRESS)        # Destination IP
-	]
+    ]
 
 
 class ARPHeader(ctypes.Structure):
@@ -115,7 +117,7 @@ class ARPHeader(ctypes.Structure):
         ('spa', 	CT_IPV4_ADDRESS),
         ('tha', 	CT_MAC_ADDRESS),
         ('tpa', 	CT_IPV4_ADDRESS)
-	]
+    ]
 
 
 class TCPHeader(ctypes.Structure):
@@ -131,6 +133,17 @@ class TCPHeader(ctypes.Structure):
         ("win", 	ctypes.c_uint16),      # Window Size
         ("chk", 	ctypes.c_uint16),      # Checksum
         ("urg", 	ctypes.c_uint16),      # Urgent Pointer
+    ]
+
+
+class UDPHeader(ctypes.Structure):
+    """Maps to UDPHeader_t. Represents the standard UDP segment header."""
+    _pack_ = 1
+    _fields_ = [
+        ('sport', ctypes.c_uint16),
+        ('dport', ctypes.c_uint16),
+        ('length', ctypes.c_uint16),
+        ('cksum', ctypes.c_uint16)
     ]
 
 

@@ -24,7 +24,7 @@ HEX_P HexInstnace_t create_hex_instance(const char* device) {
     return hex_instance;
 }
 
-HEX_P void free_hex_instance(const HexInstnace_t* handle) {
+HEX_P void free_hex_instance(HexInstnace_t* handle) {
 	if (handle == NULL) return;
 
 	pcap_close(handle->handle);
@@ -34,6 +34,8 @@ HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* instance) {
 	struct pcap_pkthdr *header;
 	const char* stream;
 	int res = pcap_next_ex(instance->handle, &header, &stream);
+
+	// PacketStream_t stream = { .stream = stream, .length = header->caplen };
 	
 	if (res == 1) {
 		ProtocolNode_t* node = parse_ether_packet(stream, header->caplen);

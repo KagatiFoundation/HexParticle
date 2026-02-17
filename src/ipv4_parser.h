@@ -12,6 +12,7 @@
 #include <stdio.h>
 
 #include "proto_node.h"
+#include "hex.h"
 
 /**
  * IPv4 header
@@ -78,7 +79,7 @@ _Static_assert(sizeof(IPV4Header_t) == 20, "IPv4_t must be 20 bytes");
 
 #define IPV4_PROTOCOL_NAME(code) IPV4_PROTOCOL_NAME_##code
 
-ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream, size_t len);
+ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream);
 
 char* ipv4_proto_name(uint16_t proto);
 

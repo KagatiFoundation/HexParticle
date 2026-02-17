@@ -16,9 +16,14 @@
  * @struct HexInstance_t
  * @brief Container for the libpcap session handle.
  */
-typedef struct HexInstnace {
+typedef struct _HexInstnace {
     pcap_t* handle;
 } HexInstnace_t;
+
+typedef struct _PacketStream {
+	uint8_t* 	stream;
+	size_t		length;
+} PacketStream_t;
 
 /**
  * @brief Initializes a live capture session on the specified network device.

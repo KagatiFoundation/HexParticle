@@ -10,7 +10,7 @@
 
 #include <string.h>
 
-ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream, size_t len) {
+ProtocolNode_t* parse_ipv4_packet(const uint8_t* stream) {
 	IPV4Header_t* ip_header = malloc(sizeof(IPV4Header_t));
 	memcpy((void*) ip_header, stream, sizeof(IPV4Header_t));
 

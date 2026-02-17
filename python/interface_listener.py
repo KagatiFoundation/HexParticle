@@ -103,11 +103,14 @@ class InterfaceListener(QWidget):
 
 
     def handle_ipv4_packet(self, pwrapper):
-        ipv4 = pwrapper.layers[1]
+        ethernet = pwrapper.layers[0] # Ethernet
+        ipv4 = pwrapper.layers[1] # IPV4 follows Ethernet
+
         src_ip = self.fmt_ip(ipv4.src)
         dst_ip = self.fmt_ip(ipv4.dst)
+        length = ethernet.len
         
-        protocol_str = protos.get_protocol_name(ipv4.ttl)
+        protocol_str = protos.get_protocol_name(ipv4.proto)
         info = f"TTL: {ipv4.ttl}, ID: {ipv4.id}"
         
         if len(pwrapper.layers) > 2:
@@ -115,10 +118,11 @@ class InterfaceListener(QWidget):
             if isinstance(next_layer, protos.TCPHeader):
                 protocol_str = "TCP"
                 info = f"Port: {next_layer.sport} -> {next_layer.dport} [Seq={next_layer.seq}]"
-            else:
-                info = "Something else"
+            elif isinstance(next_layer, protos.UDPHeader):
+                protocol_str = "UDP"
+                info = f"Port: {next_layer.sport} -> {next_layer.dport}"
 
-        self.add_packet_row(src_ip, dst_ip, protocol_str, ipv4.len, info)
+        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info)
 
     
     def fmt_mac(self, mac_array):
@@ -126,16 +130,18 @@ class InterfaceListener(QWidget):
 
 
     def handle_arp_packet(self, pwrapper):
-        arp = pwrapper.layers[1]
+        ethernet = pwrapper.layers[0] # Ethernet
+        arp = pwrapper.layers[1] # ARP follows Ethernet
         
         src_ip = self.fmt_ip(arp.spa)
         dst_ip = self.fmt_ip(arp.tpa)
         src_mac = self.fmt_mac(arp.sha)
         
-        op_type = "Request" if arp.op == 1 else "Reply" if arp.op == 2 else f"Op:{arp.op}"
-        
         protocol_str = "ARP"
-        length = 28
+        length = ethernet.len
+
+        info = "ARP Packet"
+        print(arp.op)
         
         if arp.op == protos.ARP_REQUEST:
             info = f"Who has {dst_ip}? Tell {src_ip} ({src_mac})"

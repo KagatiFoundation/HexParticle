@@ -40,7 +40,7 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
     }
 
 	if (eth_header->type == ETHER_TYPE_IPV4) {
-		ether_node->next = parse_ipv4_packet((stream + payload_off), 0);
+		ether_node->next = parse_ipv4_packet((stream + payload_off));
 	}
 	else if (eth_header->type == ETHER_TYPE_ARP) {
 		ether_node->next = parse_arp_packet((stream + payload_off));
