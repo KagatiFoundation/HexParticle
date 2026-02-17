@@ -88,16 +88,21 @@ class InterfaceListener(QWidget):
         self.worker.start()
 
 
-    def process_incoming_packet(self, pwrapper):
-        if len(pwrapper.layers) > 1 and isinstance(pwrapper.layers[1], protos.IPV4Header):
-            self.handle_ipv4_logic(pwrapper)
+    def process_incoming_packet(self, pwrapper: PacketWrapper):
+        if len(pwrapper.layers) > 1:
+            next_layer = pwrapper.layers[1]
+            
+            if isinstance(next_layer, protos.IPV4Header):
+                self.handle_ipv4_packet(pwrapper)
+            elif isinstance(next_layer, protos.ARPHeader):
+                self.handle_arp_packet(pwrapper)
 
         
     def fmt_ip(self, ip_array):
         return ".".join(map(str, ip_array))
 
 
-    def handle_ipv4_logic(self, pwrapper):
+    def handle_ipv4_packet(self, pwrapper):
         ipv4 = pwrapper.layers[1]
         src_ip = self.fmt_ip(ipv4.src)
         dst_ip = self.fmt_ip(ipv4.dst)
@@ -114,6 +119,30 @@ class InterfaceListener(QWidget):
                 info = "Something else"
 
         self.add_packet_row(src_ip, dst_ip, protocol_str, ipv4.len, info)
+
+    
+    def fmt_mac(self, mac_array):
+        return ":".join(f"{b:02x}" for b in mac_array)
+
+
+    def handle_arp_packet(self, pwrapper):
+        arp = pwrapper.layers[1]
+        
+        src_ip = self.fmt_ip(arp.spa)
+        dst_ip = self.fmt_ip(arp.tpa)
+        src_mac = self.fmt_mac(arp.sha)
+        
+        op_type = "Request" if arp.op == 1 else "Reply" if arp.op == 2 else f"Op:{arp.op}"
+        
+        protocol_str = "ARP"
+        length = 28
+        
+        if arp.op == protos.ARP_REQUEST:
+            info = f"Who has {dst_ip}? Tell {src_ip} ({src_mac})"
+        elif arp.op == protos.ARP_RESPONSE:
+            info = f"{src_ip} is at {src_mac}"
+
+        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info)
 
 
     def add_packet_row(self, src, dst, proto, length, info):

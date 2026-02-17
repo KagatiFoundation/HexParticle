@@ -55,6 +55,13 @@ class InterfaceManager:
 
 
 class PacketWrapper:
+    TYPE_MAP = {
+        protocols.ProtocolType.ETH:     protocols.EtherHeader,
+        protocols.ProtocolType.IPV4:    protocols.IPV4Header,
+        protocols.ProtocolType.ARP:     protocols.ARPHeader,
+        protocols.ProtocolType.TCP:     protocols.TCPHeader,
+    }
+    
     def __init__(self, head_node_ptr):
         self.layers = []
         current = head_node_ptr
@@ -67,12 +74,10 @@ class PacketWrapper:
 
 
     def _cast_header(self, node):
-        if node.type == protocols.ProtocolType.ETH:
-            return ctypes.cast(node.hdr, ctypes.POINTER(protocols.EtherHeader)).contents
-        elif node.type == protocols.ProtocolType.IPV4:
-            return ctypes.cast(node.hdr, ctypes.POINTER(protocols.IPV4Header)).contents
-        elif node.type == protocols.ProtocolType.TCP:
-            return ctypes.cast(node.hdr, ctypes.POINTER(protocols.TCPHeader)).contents
+        header_class = PacketWrapper.TYPE_MAP.get(node.type)
+        if header_class:
+            ptr = ctypes.cast(node.hdr, ctypes.POINTER(header_class))
+            return header_class.from_buffer_copy(ptr.contents)
         return None
 
 
@@ -117,9 +122,3 @@ class HexParticle():
 
     def __del__(self):
         self.close()
-
-
-if __name__ == "__main__":
-    hexp = HexParticle("en0")
-    while True:
-        packet = hexp.next_packet()

@@ -39,6 +39,12 @@ ETHER_TYPE_IPV4 = 0x0800
 ETHER_TYPE_IPV6 = 0x86DD 
 ETHER_TYPE_ARP 	= 0x0806 
 
+
+# --- ARP Operation Types ---
+ARP_REQUEST 	= 1
+ARP_RESPONSE	= 2
+
+
 # Represents a fixed-size array for IPv4 addresses (uint8_t[4])
 CT_IPV4_ADDRESS = ctypes.c_uint8 * 4
 # Represents a fixed-size array for MAC addresses (uint8_t[6])
@@ -63,10 +69,10 @@ class ProtocolNode(ctypes.Structure):
     pass
 
 ProtocolNode._fields_ = [
-    ("type", ctypes.c_int),               # Internal ProtocolType
-    ("hdr", ctypes.c_void_p),             # Pointer to the actual header struct
+    ("type", 	ctypes.c_int),               # Internal ProtocolType
+    ("hdr", 	ctypes.c_void_p),             # Pointer to the actual header struct
     ("hdr_len", ctypes.c_uint32),         # Size of the header (for variable length parsing)
-    ("next", ctypes.POINTER(ProtocolNode)) # Link to the encapsulated protocol
+    ("next", 	ctypes.POINTER(ProtocolNode)) # Link to the encapsulated protocol
 ]
 
 # --- Protocol Header Definitions ---
@@ -75,40 +81,56 @@ class EtherHeader(ctypes.Structure):
     """Maps to EtherHeader_t"""
     _pack_ = 1
     _fields_ = [
-        ('src_mac', CT_MAC_ADDRESS), 
-        ('dst_mac', CT_MAC_ADDRESS),
-        ('type', ctypes.c_uint16),
-        ('len', ctypes.c_size_t)
+        ('src_mac', 	CT_MAC_ADDRESS), 
+        ('dst_mac', 	CT_MAC_ADDRESS),
+        ('type', 		ctypes.c_uint16),
+        ('len', 		ctypes.c_size_t)
 	]
 
 class IPV4Header(ctypes.Structure):
     """Maps to IPv4_t. Represents the standard 20-byte IPv4 header."""
     _pack_ = 1
     _fields_ = [
-        ('ver_ihl', ctypes.c_uint8),    # Version (4 bits) + IHL (4 bits)
-        ('dscp_ecn', ctypes.c_uint8),   # DiffServ + ECN
-        ('len', ctypes.c_uint16),       # Total Packet Length
-        ('id', ctypes.c_uint16),        # Identification
-        ('flags_off', ctypes.c_uint16), # Flags + Fragment Offset
-        ('ttl', ctypes.c_uint8),        # Time to Live
-        ('chk', ctypes.c_uint16),       # Header Checksum
-        ('src', CT_IPV4_ADDRESS),       # Source IP
-        ('dst', CT_IPV4_ADDRESS)        # Destination IP
+        ('ver_ihl', 	ctypes.c_uint8),    # Version (4 bits) + IHL (4 bits)
+        ('dscp_ecn', 	ctypes.c_uint8),   # DiffServ + ECN
+        ('len', 		ctypes.c_uint16),       # Total Packet Length
+        ('id', 			ctypes.c_uint16),        # Identification
+        ('flags_off', 	ctypes.c_uint16), # Flags + Fragment Offset
+        ('ttl', 		ctypes.c_uint8),        # Time to Live
+        ('chk', 		ctypes.c_uint16),       # Header Checksum
+        ('src', 		CT_IPV4_ADDRESS),       # Source IP
+        ('dst', 		CT_IPV4_ADDRESS)        # Destination IP
 	]
+
+
+class ARPHeader(ctypes.Structure):
+    _pack_ = 1
+    _fields_ = [
+        ('htype', 	ctypes.c_uint16),
+        ('ptype', 	ctypes.c_uint16),
+        ('hlen', 	ctypes.c_uint8),
+        ('plen', 	ctypes.c_uint8),
+        ('op', 		ctypes.c_uint16),
+        ('sha', 	CT_MAC_ADDRESS),
+        ('spa', 	CT_IPV4_ADDRESS),
+        ('tha', 	CT_MAC_ADDRESS),
+        ('tpa', 	CT_IPV4_ADDRESS)
+	]
+
 
 class TCPHeader(ctypes.Structure):
     """Maps to TCPHeader_t. Represents the standard TCP segment header."""
     _pack_ = 1
     _fields_ = [
-        ("sport", ctypes.c_uint16),    # Source Port
-        ("dport", ctypes.c_uint16),    # Destination Port
-        ("seq", ctypes.c_uint32),      # Sequence Number
-        ("ack", ctypes.c_uint32),      # Acknowledgment Number
+        ("sport", 	ctypes.c_uint16),    # Source Port
+        ("dport", 	ctypes.c_uint16),    # Destination Port
+        ("seq", 	ctypes.c_uint32),      # Sequence Number
+        ("ack", 	ctypes.c_uint32),      # Acknowledgment Number
         ("off_res", ctypes.c_uint8),   # Data Offset + Reserved bits
-        ("flags", ctypes.c_uint8),     # Control Flags (SYN, ACK, FIN, etc.)
-        ("win", ctypes.c_uint16),      # Window Size
-        ("chk", ctypes.c_uint16),      # Checksum
-        ("urg", ctypes.c_uint16),      # Urgent Pointer
+        ("flags", 	ctypes.c_uint8),     # Control Flags (SYN, ACK, FIN, etc.)
+        ("win", 	ctypes.c_uint16),      # Window Size
+        ("chk", 	ctypes.c_uint16),      # Checksum
+        ("urg", 	ctypes.c_uint16),      # Urgent Pointer
     ]
 
 
@@ -119,5 +141,6 @@ __all__ = [
     'ProtocolNode', 
     'ProtocolType',
     'EtherHeader',
-    'IPV4Header'
+    'IPV4Header',
+    'ARPHeader'
 ]
