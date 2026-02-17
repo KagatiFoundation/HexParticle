@@ -1,5 +1,7 @@
 import ctypes
 
+# --- IPv4 Protocol Numbers (assigned by IANA) ---
+# Used to identify the next level protocol in the IP header 'proto' field
 IPV4_ICMP        = 0x01
 IPV4_IGMP        = 0x02
 IPV4_TCP         = 0x06
@@ -14,37 +16,36 @@ IPV4_EIGRP       = 0x58
 IPV4_OSPF        = 0x59
 IPV4_L2TP        = 0x73
 
-
+# Mapping for human-readable output during packet dissection
 IPV4_PROTOCOL_NAMES = {
-    IPV4_ICMP:       "ICMP(Internet Control Message Protocol)",
-    IPV4_IGMP:       "IGMP(Internet Group Management Protocol)",
-    IPV4_TCP:        "TCP(Transmission Control Protocol)",
-    IPV4_UDP:        "UDP(User Datagram Protocol)",
+    IPV4_ICMP:        "ICMP(Internet Control Message Protocol)",
+    IPV4_IGMP:        "IGMP(Internet Group Management Protocol)",
+    IPV4_TCP:         "TCP(Transmission Control Protocol)",
+    IPV4_UDP:         "UDP(User Datagram Protocol)",
     IPV4_IPV6_ROUTE: "IPv6-Route(Routing Header for IPv6)",
-    IPV4_DSR:        "DSR(Dynamic Source Routing Protocol)",
-    IPV4_SWIPE:      "SwIPe(Swipe IP Security Protocol)",
-    IPV4_TLSP:       "TLSP(Transport Layer Security Protocol)",
-    IPV4_SKIP:       "SKIP(Simple Key Management for IP)",
+    IPV4_DSR:         "DSR(Dynamic Source Routing Protocol)",
+    IPV4_SWIPE:       "SwIPe(Swipe IP Security Protocol)",
+    IPV4_TLSP:        "TLSP(Transport Layer Security Protocol)",
+    IPV4_SKIP:        "SKIP(Simple Key Management for IP)",
     IPV4_SAT_EXPAK:  "SAT-EXPAK(SATNET and Backroom EXPAK)",
-    IPV4_EIGRP:      "EIGRP(Enhanced Interior Gateway Routing Protocol)",
-    IPV4_OSPF:       "OSPF(Open Shorted Path First)",
-    IPV4_L2TP:       "L2TP(Layer 2 Tunneling Protocol version 3)",
+    IPV4_EIGRP:       "EIGRP(Enhanced Interior Gateway Routing Protocol)",
+    IPV4_OSPF:        "OSPF(Open Shorted Path First)",
+    IPV4_L2TP:        "L2TP(Layer 2 Tunneling Protocol version 3)",
 }
 
+# --- Layer 2 EtherTypes ---
+# Used in the Ethernet frame to determine which protocol is encapsulated
+ETHER_TYPE_IPV4 = 0x0800 
+ETHER_TYPE_IPV6 = 0x86DD 
+ETHER_TYPE_ARP 	= 0x0806 
 
-# EtherType(https://en.wikipedia.org/wiki/EtherType#Values)
-ETHER_TYPE_IPV4 = 0x0800 # Internet Protocol Version 4 
-ETHER_TYPE_IPV6 = 0x86DD # Internet Protocol Version 6
-ETHER_TYPE_ARP 	= 0x0806 # Address Resolution Protocol
-
-
-# ctypes IPV4 address
+# Represents a fixed-size array for IPv4 addresses (uint8_t[4])
 CT_IPV4_ADDRESS = ctypes.c_uint8 * 4
-
+# Represents a fixed-size array for MAC addresses (uint8_t[6])
+CT_MAC_ADDRESS  = ctypes.c_uint8 * 6
 
 def get_protocol_name(proto_number: int) -> str:
     return IPV4_PROTOCOL_NAMES.get(proto_number, "Unknown Protocol")
-
 
 class ProtocolType:
     ETH		= 0
@@ -53,65 +54,70 @@ class ProtocolType:
     ARP 	= 3
     TCP 	= 4
 
-
+# --- Hierarchical Node Structure ---
 class ProtocolNode(ctypes.Structure):
+    """
+    Python representation of the C linked-list node.
+    Each node points to a specific protocol header and the next layer.
+    """
     pass
 
-
 ProtocolNode._fields_ = [
-    ("type", ctypes.c_int),
-    ("hdr", ctypes.c_void_p),
-    ("hdr_len", ctypes.c_uint32),
-    ("next", ctypes.POINTER(ProtocolNode))
+    ("type", ctypes.c_int),               # Internal ProtocolType
+    ("hdr", ctypes.c_void_p),             # Pointer to the actual header struct
+    ("hdr_len", ctypes.c_uint32),         # Size of the header (for variable length parsing)
+    ("next", ctypes.POINTER(ProtocolNode)) # Link to the encapsulated protocol
 ]
 
+# --- Protocol Header Definitions ---
 
 class EtherHeader(ctypes.Structure):
+    """Maps to EtherHeader_t"""
     _pack_ = 1
     _fields_ = [
-        ('src_mac', ctypes.c_char_p),
-        ('dst_mac', ctypes.c_char_p),
+        ('src_mac', CT_MAC_ADDRESS), 
+        ('dst_mac', CT_MAC_ADDRESS),
         ('type', ctypes.c_uint16),
         ('len', ctypes.c_size_t)
 	]
 
-
 class IPV4Header(ctypes.Structure):
+    """Maps to IPv4_t. Represents the standard 20-byte IPv4 header."""
     _pack_ = 1
     _fields_ = [
-        ('ver_ihl', ctypes.c_uint8),
-        ('dscp_ecn', ctypes.c_uint8),
-        ('len', ctypes.c_uint16),
-        ('id', ctypes.c_uint16),
-        ('flags_off', ctypes.c_uint16),
-        ('ttl', ctypes.c_uint8),
-        ('chk', ctypes.c_uint16),
-        ('src', CT_IPV4_ADDRESS),
-        ('dst', CT_IPV4_ADDRESS)
+        ('ver_ihl', ctypes.c_uint8),    # Version (4 bits) + IHL (4 bits)
+        ('dscp_ecn', ctypes.c_uint8),   # DiffServ + ECN
+        ('len', ctypes.c_uint16),       # Total Packet Length
+        ('id', ctypes.c_uint16),        # Identification
+        ('flags_off', ctypes.c_uint16), # Flags + Fragment Offset
+        ('ttl', ctypes.c_uint8),        # Time to Live
+        ('chk', ctypes.c_uint16),       # Header Checksum
+        ('src', CT_IPV4_ADDRESS),       # Source IP
+        ('dst', CT_IPV4_ADDRESS)        # Destination IP
 	]
 
-
 class TCPHeader(ctypes.Structure):
+    """Maps to TCPHeader_t. Represents the standard TCP segment header."""
     _pack_ = 1
     _fields_ = [
-        ("sport", ctypes.c_uint16),
-        ("dport", ctypes.c_uint16),
-        ("seq", ctypes.c_uint32),
-        ("ack", ctypes.c_uint32),
-        ("off_res", ctypes.c_uint8),
-        ("flags", ctypes.c_uint8),
-        ("win", ctypes.c_uint16),
-        ("chk", ctypes.c_uint16),
-        ("urg", ctypes.c_uint16),
+        ("sport", ctypes.c_uint16),    # Source Port
+        ("dport", ctypes.c_uint16),    # Destination Port
+        ("seq", ctypes.c_uint32),      # Sequence Number
+        ("ack", ctypes.c_uint32),      # Acknowledgment Number
+        ("off_res", ctypes.c_uint8),   # Data Offset + Reserved bits
+        ("flags", ctypes.c_uint8),     # Control Flags (SYN, ACK, FIN, etc.)
+        ("win", ctypes.c_uint16),      # Window Size
+        ("chk", ctypes.c_uint16),      # Checksum
+        ("urg", ctypes.c_uint16),      # Urgent Pointer
     ]
 
 
 __all__ = [
-    'IPV4_PROTOCOLS', 
+    'IPV4_PROTOCOL_NAMES', 
     'ETHER_TYPE_IPV4', 
     'TCPHeader', 
     'ProtocolNode', 
     'ProtocolType',
-    'PacketWrapper',
-    'EtherHeader'
+    'EtherHeader',
+    'IPV4Header'
 ]

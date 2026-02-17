@@ -81,7 +81,17 @@ class PacketWrapper:
 
 
 class HexParticle():
+    """
+    A high-level packet sniffing interface for the HexParticle C library.
+    """
+
     def __init__(self, device: str):
+        """
+        Initializes the sniffer on the specified network interface.
+
+        Args:
+            device (str): Name of the network interface (e.g., 'eth0', 'wlan0').
+        """
         self.handle: HexInstance = lib_hexp.create_hex_instance(device.encode('utf-8'))
         if not self.handle:
             raise RuntimeError(f"Failed to open device {device}")

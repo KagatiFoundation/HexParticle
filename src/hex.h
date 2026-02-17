@@ -10,16 +10,37 @@
 #include "ether_parser.h"
 
 #define HEX_P
-#define HEX_OUT_BUF_SIZE 		4096
+#define HEX_OUT_BUF_SIZE 4096
 
+/**
+ * @struct HexInstance_t
+ * @brief Container for the libpcap session handle.
+ */
 typedef struct HexInstnace {
-	pcap_t* handle;
+    pcap_t* handle;
 } HexInstnace_t;
 
+/**
+ * @brief Initializes a live capture session on the specified network device.
+ * @param device The name of the interface (e.g., "eth0").
+ * @return A HexInstnace_t structure containing the active pcap handle.
+ * @note This function will terminate the process if the device cannot be opened.
+ */
 HEX_P HexInstnace_t create_hex_instance(const char* device);
 
-HEX_P void free_hex_instance(const HexInstnace_t* handle);
+/**
+ * @brief Closes the pcap handle and releases associated instance memory.
+ * @param handle Pointer to the instance to be destroyed.
+ */
+HEX_P void free_hex_instance(HexInstnace_t* handle);
 
+/**
+ * @brief Captures the next packet and parses it into a protocol chain.
+ * @param handle Pointer to the active sniffer instance.
+ * @return ProtocolNode_t* The head of the parsed linked list.
+ * @warning Returns heap-allocated memory. Caller must use free_protocol_node() 
+ * to prevent memory leaks.
+ */
 HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* handle);
 
 #endif
