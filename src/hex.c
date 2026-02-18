@@ -25,9 +25,10 @@ HEX_P HexInstnace_t create_hex_instance(const char* device) {
 }
 
 HEX_P void free_hex_instance(HexInstnace_t* handle) {
-	if (handle == NULL) return;
+	if (handle == NULL || handle->handle == NULL) return;
 
 	pcap_close(handle->handle);
+	handle->handle = NULL;
 }
 
 HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* instance) {

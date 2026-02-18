@@ -149,7 +149,6 @@ class InterfaceListener(QWidget):
         length = ethernet.len
 
         info = "ARP Packet"
-        print(arp.op)
         
         if arp.op == protos.ARP_REQUEST:
             info = f"Who has {dst_ip}? Tell {src_ip} ({src_mac})"

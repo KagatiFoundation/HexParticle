@@ -18,7 +18,7 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
     memcpy(eth_header->src_mac, stream + 6, 6);
 
     eth_header->type = (stream[12] << 8) | stream[13];
-    eth_header->len = ntohs(len); // convert length to system's byte-order
+    eth_header->len = len; // convert length to system's byte-order
 
 	int payload_off = ETHER_PAYLOAD_OFF;
     while (eth_header->type == 0x8100) {
