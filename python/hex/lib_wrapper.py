@@ -71,7 +71,10 @@ class PacketWrapper:
         while current:
             node = current.contents
             layer_data = self._cast_header(node)
-            self.layers.append(layer_data)
+            
+            if layer_data is not None:
+                self.layers.append(layer_data)
+
             current = node.next
 
 
