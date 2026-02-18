@@ -6,9 +6,11 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
 from PyQt6.QtCore import QThread, pyqtSignal
 
 import PyQt6.QtWidgets as pyqtw
+from  PyQt6 import QtCore
 
 from hex.lib_wrapper import HexParticle, PacketWrapper
 from hex import protocols as protos
+from protocol_dissector import ProtocolDissector
 
 import style_loader
 
@@ -42,6 +44,7 @@ class InterfaceListener(QWidget):
         super().__init__()
         self.worker = None
         self.interface = interface
+        self.packets = []
         self.init_ui()
 
 
@@ -58,6 +61,8 @@ class InterfaceListener(QWidget):
         layout.addWidget(self.search_bar)
         
         layout.addWidget(QLabel("Live Packets (IPv4 Protocol Mapping):"))
+        self.main_splitter = pyqtw.QSplitter(QtCore.Qt.Orientation.Vertical)
+
         self.packet_table = QTableWidget()
         self.packet_table.setColumnCount(5)
         self.packet_table.setHorizontalHeaderLabels(
@@ -65,7 +70,15 @@ class InterfaceListener(QWidget):
         )
         self.packet_table.horizontalHeader().setStretchLastSection(True)
         self.packet_table.setAlternatingRowColors(True)
-        layout.addWidget(self.packet_table)
+
+        self.packet_table.itemClicked.connect(self.on_row_selected)
+
+        self.main_splitter.addWidget(self.packet_table)
+
+        self.dissector = ProtocolDissector()
+        self.main_splitter.addWidget(self.dissector)
+
+        layout.addWidget(self.main_splitter)
 
         ctrl_layout = QHBoxLayout()
         self.start_btn = QPushButton("Start Capture")
@@ -77,6 +90,7 @@ class InterfaceListener(QWidget):
         
         ctrl_layout.addWidget(self.start_btn)
         ctrl_layout.addWidget(self.stop_btn)
+
         layout.addLayout(ctrl_layout)
 
     
@@ -130,7 +144,7 @@ class InterfaceListener(QWidget):
                 protocol_str = "UDP"
                 info = f"Port: {next_layer.sport} -> {next_layer.dport}"
 
-        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info)
+        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info, pwrapper)
 
     
     def fmt_mac(self, mac_array):
@@ -155,12 +169,20 @@ class InterfaceListener(QWidget):
         elif arp.op == protos.ARP_RESPONSE:
             info = f"{src_ip} is at {src_mac}"
 
-        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info)
+        self.add_packet_row(src_ip, dst_ip, protocol_str, length, info, pwrapper)
 
 
-    def add_packet_row(self, src, dst, proto, length, info):
+    def add_packet_row(self, src, dst, proto, length, info, pwrapper):
         row = self.packet_table.rowCount()
         self.packet_table.insertRow(row)
+
+        self.packets.append(pwrapper)
+
+        src_item = QTableWidgetItem(str(src))
+        src_item.setData(QtCore.Qt.ItemDataRole.UserRole, len(self.packets) - 1)
+        
+        self.packet_table.setItem(row, 0, src_item)
+        self.packet_table.setItem(row, 1, QTableWidgetItem(str(dst)))
 
         self.packet_table.setItem(row, 0, QTableWidgetItem(str(src)))
         self.packet_table.setItem(row, 1, QTableWidgetItem(str(dst)))
@@ -169,6 +191,15 @@ class InterfaceListener(QWidget):
         self.packet_table.setItem(row, 4, QTableWidgetItem(str(info)))
 
         self.packet_table.scrollToBottom()
+
+    
+    def on_row_selected(self, item):
+        row_index = item.row()
+        
+        if row_index < len(self.packets):
+            selected_packet = self.packets[row_index]
+            
+            self.dissector.display_packet(selected_packet)
 
 
     def stop_sniffing(self):
