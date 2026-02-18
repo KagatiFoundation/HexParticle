@@ -11,6 +11,7 @@ class ProtocolDissector(QWidget):
         self.tree.setColumnWidth(0, 200)
         self.layout.addWidget(self.tree)
 
+
     def display_packet(self, pwrapper):
         """
         Processes the PacketWrapper (which contains the layers 
@@ -19,10 +20,23 @@ class ProtocolDissector(QWidget):
         self.tree.clear()
         
         for layer in pwrapper.layers:
-            if isinstance(layer, protos.IPV4Header):
+            if isinstance(layer, protos.EtherHeader):
+                self._add_ethernet_layer(layer)
+            elif isinstance(layer, protos.IPV4Header):
                 self._add_ipv4_layer(layer)
             elif isinstance(layer, protos.TCPHeader):
                 self._add_tcp_layer(layer)
+
+    
+    def _add_ethernet_layer(self, ether):
+        parent = QTreeWidgetItem(self.tree, ["Ethernet"])
+        proto_name = protos.ETHER_TYPE_NAMES.get(ether.type)
+        QTreeWidgetItem(parent, ["Source Address", ":".join(map(hex, ether.src_mac)).replace("0x", "")])
+        QTreeWidgetItem(parent, ["Destination Address", ":".join(map(hex, ether.dst_mac)).replace("0x", "")])
+        QTreeWidgetItem(parent, ["Type", str(proto_name)])
+        QTreeWidgetItem(parent, ["Length", hex(ether.len)])
+        parent.setExpanded(True)
+
 
     def _add_ipv4_layer(self, ipv4):
         parent = QTreeWidgetItem(self.tree, ["Internet Protocol Version 4"])
@@ -34,6 +48,7 @@ class ProtocolDissector(QWidget):
         QTreeWidgetItem(parent, ["Source", ".".join(map(str, ipv4.src))])
         QTreeWidgetItem(parent, ["Destination", ".".join(map(str, ipv4.dst))])
         parent.setExpanded(True)
+
 
     def _add_tcp_layer(self, tcp):
         parent = QTreeWidgetItem(self.tree, ["Transmission Control Protocol"])

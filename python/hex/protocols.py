@@ -22,12 +22,12 @@ IPV4_PROTOCOL_NAMES = {
     IPV4_IGMP:        "IGMP(Internet Group Management Protocol)",
     IPV4_TCP:         "TCP(Transmission Control Protocol)",
     IPV4_UDP:         "UDP(User Datagram Protocol)",
-    IPV4_IPV6_ROUTE: "IPv6-Route(Routing Header for IPv6)",
+    IPV4_IPV6_ROUTE:  "IPv6-Route(Routing Header for IPv6)",
     IPV4_DSR:         "DSR(Dynamic Source Routing Protocol)",
     IPV4_SWIPE:       "SwIPe(Swipe IP Security Protocol)",
     IPV4_TLSP:        "TLSP(Transport Layer Security Protocol)",
     IPV4_SKIP:        "SKIP(Simple Key Management for IP)",
-    IPV4_SAT_EXPAK:  "SAT-EXPAK(SATNET and Backroom EXPAK)",
+    IPV4_SAT_EXPAK:   "SAT-EXPAK(SATNET and Backroom EXPAK)",
     IPV4_EIGRP:       "EIGRP(Enhanced Interior Gateway Routing Protocol)",
     IPV4_OSPF:        "OSPF(Open Shorted Path First)",
     IPV4_L2TP:        "L2TP(Layer 2 Tunneling Protocol version 3)",
@@ -38,6 +38,12 @@ IPV4_PROTOCOL_NAMES = {
 ETHER_TYPE_IPV4 = 0x0800 
 ETHER_TYPE_IPV6 = 0x86DD 
 ETHER_TYPE_ARP 	= 0x0806 
+
+ETHER_TYPE_NAMES = {
+    ETHER_TYPE_ARP:		"Address Resolution Protocol",
+    ETHER_TYPE_IPV4:	"Internet Protocol Version 4",
+    ETHER_TYPE_IPV6:	"Internet Protocol Version 6",
+}
 
 
 # --- ARP Operation Types ---
