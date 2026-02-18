@@ -3,6 +3,8 @@ from hex import protocols as protos
 from PyQt6.QtWidgets import QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 
 class ProtocolDissector(QWidget):
+    COMMON_PORTS = {53: "DNS", 80: "HTTP", 443: "HTTPS", 67: "DHCP", 68: "DHCP"}
+
     def __init__(self):
         super().__init__()
         self.layout = QVBoxLayout(self)
@@ -28,6 +30,8 @@ class ProtocolDissector(QWidget):
                 self._add_ipv4_layer(layer)
             elif isinstance(layer, protos.TCPHeader):
                 self._add_tcp_layer(layer)
+            elif isinstance(layer, protos.UDPHeader):
+                self._add_udp_layer(layer)
 
 
     def to_mac_str(self, bytes):
@@ -80,9 +84,24 @@ class ProtocolDissector(QWidget):
     def _add_tcp_layer(self, tcp):
         parent = QTreeWidgetItem(self.tree, ["Transmission Control Protocol"])
         QTreeWidgetItem(parent, ["Source Port", str(tcp.sport)])
-        QTreeWidgetItem(parent, ["Destination Port", str(tcp.dport)])
+
+        port_info = ProtocolDissector.COMMON_PORTS.get(tcp.dport, "")
+        QTreeWidgetItem(parent, ["Destination Port", f"{tcp.dport} {port_info}"])
+
         QTreeWidgetItem(parent, ["Sequence Number", str(tcp.seq)])
         QTreeWidgetItem(parent, ["Acknowledgment Number", str(tcp.ack)])
         QTreeWidgetItem(parent, ["Flags", hex(tcp.flags)])
         QTreeWidgetItem(parent, ["Window Size", str(tcp.win)])
+        parent.setExpanded(True)
+
+    
+    def _add_udp_layer(self, udp):
+        parent = QTreeWidgetItem(self.tree, ["User Datagram Protocol"])
+        QTreeWidgetItem(parent, ["Source Port", str(udp.sport)])
+
+        port_info = ProtocolDissector.COMMON_PORTS.get(udp.dport, "")
+        QTreeWidgetItem(parent, ["Destination Port", f"{udp.dport} {port_info}"])
+
+        QTreeWidgetItem(parent, ["Length", f"{udp.length} bytes"])
+        QTreeWidgetItem(parent, ["Checksum", f"0x{udp.cksum:04x}"])
         parent.setExpanded(True)
