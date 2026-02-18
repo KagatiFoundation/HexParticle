@@ -17,7 +17,7 @@
 #define ETHER_TYPE_IPV6 		0x86DD
 
 #define MAC_ADDR_LEN 			0xC
-#define ETHER_PAYLOAD_OFF 		0xE
+#define ETHER_PAYLOAD_OFF 		0xE // Standard Ethernet header is 14 bytes
 
 typedef struct __attribute__((packed)) EtherHeader {
     uint8_t  	src_mac[MAC_ADDR_LEN];

@@ -115,6 +115,7 @@ class InterfaceListener(QWidget):
 
         src_ip = self.fmt_ip(ipv4.src)
         dst_ip = self.fmt_ip(ipv4.dst)
+
         length = ethernet.len
         
         protocol_str = protos.get_protocol_name(ipv4.proto)

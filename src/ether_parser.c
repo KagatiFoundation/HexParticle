@@ -16,13 +16,15 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
 	EtherHeader_t* eth_header = malloc(sizeof(EtherHeader_t));
     memcpy(eth_header->dst_mac, stream, 6);
     memcpy(eth_header->src_mac, stream + 6, 6);
+
     eth_header->type = (stream[12] << 8) | stream[13];
-    eth_header->len = len;
+    eth_header->len = ntohs(len); // convert length to system's byte-order
 
 	int payload_off = ETHER_PAYLOAD_OFF;
     while (eth_header->type == 0x8100) {
         if (len < payload_off + 4) {
             fprintf(stderr, "Malformed packet.\n");
+			free(eth_header);
             return NULL;
         }
 
