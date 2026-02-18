@@ -22,19 +22,46 @@ class ProtocolDissector(QWidget):
         for layer in pwrapper.layers:
             if isinstance(layer, protos.EtherHeader):
                 self._add_ethernet_layer(layer)
+            elif isinstance(layer, protos.ARPHeader):
+                self._add_arp_layer(layer)
             elif isinstance(layer, protos.IPV4Header):
                 self._add_ipv4_layer(layer)
             elif isinstance(layer, protos.TCPHeader):
                 self._add_tcp_layer(layer)
 
+
+    def to_mac_str(self, bytes):
+        return ":".join(map(hex, bytes)).replace("0x", "")
+
+    
+    def to_ip_str(self, octets):
+        return ".".join(map(str, octets))
+
     
     def _add_ethernet_layer(self, ether):
         parent = QTreeWidgetItem(self.tree, ["Ethernet"])
         proto_name = protos.ETHER_TYPE_NAMES.get(ether.type)
-        QTreeWidgetItem(parent, ["Source Address", ":".join(map(hex, ether.src_mac)).replace("0x", "")])
-        QTreeWidgetItem(parent, ["Destination Address", ":".join(map(hex, ether.dst_mac)).replace("0x", "")])
+        QTreeWidgetItem(parent, ["Source Address", self.to_mac_str(ether.src_mac)])
+        QTreeWidgetItem(parent, ["Destination Address", self.to_mac_str(ether.dst_mac)])
         QTreeWidgetItem(parent, ["Type", str(proto_name)])
         QTreeWidgetItem(parent, ["Length", hex(ether.len)])
+        parent.setExpanded(False)
+
+
+    def _add_arp_layer(self, arp):
+        arp_type = "Reply" if arp.op == protos.ARP_RESPONSE else "Request"
+        parent = QTreeWidgetItem(self.tree, [f"Address Resolution Protocol ({arp_type})"])
+        QTreeWidgetItem(parent, ["Hardware Type", str(arp.htype)])
+
+        proto_name = protos.ETHER_TYPE_NAMES.get(arp.ptype)
+        QTreeWidgetItem(parent, ["Protocol Type", str(proto_name) + f" ({hex(arp.ptype)})"])
+        QTreeWidgetItem(parent, ["Hardware Length", hex(arp.hlen)])
+        QTreeWidgetItem(parent, ["Protocol Length", hex(arp.plen)])
+        QTreeWidgetItem(parent, ["Opcode", f"{arp_type} ({hex(arp.op)})"])
+        QTreeWidgetItem(parent, ["Sender MAC Address", self.to_mac_str(arp.sha)])
+        QTreeWidgetItem(parent, ["Sender Protocol Address", self.to_ip_str(arp.spa)])
+        QTreeWidgetItem(parent, ["Target MAC Address", self.to_mac_str(arp.tha)])
+        QTreeWidgetItem(parent, ["Target Protocol Address", self.to_ip_str(arp.tpa)])
         parent.setExpanded(True)
 
 
@@ -47,7 +74,7 @@ class ProtocolDissector(QWidget):
         QTreeWidgetItem(parent, ["Protocol", str(ipv4.proto)])
         QTreeWidgetItem(parent, ["Source", ".".join(map(str, ipv4.src))])
         QTreeWidgetItem(parent, ["Destination", ".".join(map(str, ipv4.dst))])
-        parent.setExpanded(True)
+        parent.setExpanded(False)
 
 
     def _add_tcp_layer(self, tcp):
