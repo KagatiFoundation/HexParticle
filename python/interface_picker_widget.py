@@ -4,6 +4,7 @@
 from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QListWidget, QListWidgetItem, QLabel)
 from hex.lib_wrapper import InterfaceManager
 from interface_listener import InterfaceListener
+import style_loader
 
 class InterfacePicker(QWidget):
     def __init__(self):
@@ -16,43 +17,7 @@ class InterfacePicker(QWidget):
         self.setWindowTitle("HexParticle Sniffer")
         self.resize(400, 300) 
         
-        self.setStyleSheet("""
-            QWidget { 
-                background-color: #121212; 
-                color: #e0e0e0; 
-                font-family: 'Segoe UI', Tahoma, sans-serif; 
-            }
-
-            QListWidget { 
-                background-color: #1e1e1e; 
-                border: 1px solid #333333; 
-                border-radius: 6px; 
-                outline: none;
-            }
-
-            QListWidget::item {
-                padding: 10px;
-                border-bottom: 1px solid #2a2a2a;
-                border-radius: 4px;
-                margin: 2px 5px;
-            }
-
-            QListWidget::item:hover {
-                background-color: #2a2a2a;
-            }
-
-            QListWidget::item:selected {
-                background-color: #0e639c;
-                color: white;
-            }
-
-            QLabel#Header {
-                font-size: 18px;
-                font-weight: bold;
-                color: #569cd6;
-                margin-bottom: 5px;
-            }
-        """)
+        self.setStyleSheet(style_loader.get_style("./styles/interface_picker_widget.css"))
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(20, 20, 20, 20)

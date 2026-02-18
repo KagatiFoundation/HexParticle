@@ -5,8 +5,12 @@ from PyQt6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout,
                                     QTableWidget, QTableWidgetItem, QPushButton, QLabel)
 from PyQt6.QtCore import QThread, pyqtSignal
 
+import PyQt6.QtWidgets as pyqtw
+
 from hex.lib_wrapper import HexParticle, PacketWrapper
 from hex import protocols as protos
+
+import style_loader
 
 class HexParticleWorker(QThread):
     packet_received = pyqtSignal(PacketWrapper)
@@ -44,16 +48,15 @@ class InterfaceListener(QWidget):
     def init_ui(self):
         self.setWindowTitle("HexParticle Sniffer")
         self.resize(600, 500)
-        self.setStyleSheet("""
-            QWidget { background-color: #1a1a1a; color: #ececec; font-family: 'Segoe UI', sans-serif; }
-            QListWidget { background-color: #2d2d2d; border: 1px solid #3f3f3f; border-radius: 4px; padding: 5px; }
-            QPushButton { background-color: #0e639c; color: white; padding: 8px; border: none; border-radius: 4px; }
-            QPushButton:hover { background-color: #1177bb; }
-            QPushButton:disabled { background-color: #444; color: #888; }
-        """)
+        self.setStyleSheet(style_loader.get_style("./styles/interface_listener.css"))
 
         layout = QVBoxLayout(self)
-
+        
+        self.search_bar = pyqtw.QLineEdit()
+        self.search_bar.setPlaceholderText("Filter by Protocol or IP (e.g., TCP, 192.168...)")
+        self.search_bar.textChanged.connect(self.filter_table)
+        layout.addWidget(self.search_bar)
+        
         layout.addWidget(QLabel("Live Packets (IPv4 Protocol Mapping):"))
         self.packet_table = QTableWidget()
         self.packet_table.setColumnCount(5)
@@ -75,6 +78,10 @@ class InterfaceListener(QWidget):
         ctrl_layout.addWidget(self.start_btn)
         ctrl_layout.addWidget(self.stop_btn)
         layout.addLayout(ctrl_layout)
+
+    
+    def filter_table(self, filters):
+        print(filters)
 
 
     def start_sniffing(self):
