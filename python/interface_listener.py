@@ -209,15 +209,7 @@ class InterfaceListener(QWidget):
             selected_packet = self.packets[row_index]
             
             self.dissector.display_packet(selected_packet)
-            self.hex_viewer.set_data(
-                b'''
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum a porttitor purus, sit amet ultricies ipsum. Donec efficitur facilisis nisi ac egestas. Nullam ac sodales nisi. Pellentesque sodales, erat id accumsan molestie, dolor libero gravida ligula, ac hendrerit elit dui a ipsum. Praesent sed massa vulputate, mattis libero hendrerit, porta odio. Nulla nec erat lacus. Nulla sodales libero a magna bibendum, euismod auctor dolor pulvinar.
-                Quisque cursus mi vitae consectetur venenatis. Donec volutpat tempus est, a porttitor turpis fermentum eu. Vestibulum tincidunt eu enim vitae facilisis. Mauris consequat lacus nec nunc sagittis, quis suscipit urna semper. Mauris id velit pharetra, maximus velit nec, tincidunt ante. Phasellus interdum fringilla urna, vel mollis diam cursus nec. Duis malesuada cursus augue, sed varius nunc consequat eget.
-                Nullam ipsum enim, viverra vel libero id, dignissim bibendum dolor. Sed ut diam sem. Aliquam in neque cursus, iaculis erat in, cursus turpis. Praesent non felis nibh. Maecenas ac sapien eros. Nunc sit amet massa justo. Quisque efficitur pharetra mattis.
-                Suspendisse augue justo, condimentum efficitur elementum eget, iaculis ac mi. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Morbi laoreet lacus ac neque auctor, eget fermentum sapien iaculis. Vivamus diam ex, semper sed lobortis at, sollicitudin a velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Suspendisse quis aliquet mi. Vivamus et libero commodo, dapibus elit ac, viverra quam. Donec varius justo enim. Vivamus efficitur congue tristique. Nam varius elit est, sit amet venenatis magna tincidunt eu. Nulla vitae dictum nulla. Suspendisse suscipit ante facilisis ullamcorper consectetur. Nunc ac tempus libero.
-                Proin justo sem, semper quis leo vitae, dapibus lacinia est. Duis molestie ex a mi dignissim, a posuere lorem rhoncus. Donec aliquet, urna a condimentum dictum, lorem ante mollis lacus, nec accumsan lacus tortor non turpis. Cras ullamcorper luctus odio ac rhoncus. Nulla consequat, est consequat scelerisque dapibus, dolor lacus pulvinar turpis, sit amet auctor erat sapien eget sem. Praesent quis suscipit leo, sed mollis orci. Duis et vulputate nulla. Integer id lectus ligula. Mauris sagittis tincidunt iaculis.
-                '''
-            )
+            self.hex_viewer.set_data(selected_packet.raw)
 
 
     def stop_sniffing(self):

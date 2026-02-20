@@ -66,14 +66,17 @@ class PacketWrapper:
     
     def __init__(self, head_node_ptr):
         self.layers = []
+        self.raw = bytearray()
+        
         current = head_node_ptr
         
         while current:
             node = current.contents
-            layer_data = self._cast_header(node)
+            header_obj = self._cast_header(node)
             
-            if layer_data is not None:
-                self.layers.append(layer_data)
+            if header_obj is not None:
+                self.layers.append(header_obj)
+                self.raw.extend(bytes(header_obj))
 
             current = node.next
 
