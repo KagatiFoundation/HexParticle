@@ -18,7 +18,8 @@ class ProtocolDissector(QWidget):
         self.layout.addWidget(self.tree)
 
         self.dissection_handlers = {
-            protos.TCPHeader: dissectors.TCPDissectorComponent.dissect
+            protos.TCPHeader: dissectors.TCPDissectorComponent.dissect,
+            protos.IPV4Header: dissectors.IPV4DissectorComponent.dissect
         }
 
 
@@ -38,8 +39,6 @@ class ProtocolDissector(QWidget):
                 self._add_ethernet_layer(layer)
             elif isinstance(layer, protos.ARPHeader):
                 self._add_arp_layer(layer)
-            elif isinstance(layer, protos.IPV4Header):
-                self._add_ipv4_layer(layer)
             elif isinstance(layer, protos.UDPHeader):
                 self._add_udp_layer(layer)
 
@@ -89,20 +88,6 @@ class ProtocolDissector(QWidget):
         QTreeWidgetItem(parent, ["Source", ".".join(map(str, ipv4.src))])
         QTreeWidgetItem(parent, ["Destination", ".".join(map(str, ipv4.dst))])
         parent.setExpanded(False)
-
-
-    def _add_tcp_layer(self, tcp):
-        parent = QTreeWidgetItem(self.tree, ["Transmission Control Protocol"])
-        QTreeWidgetItem(parent, ["Source Port", str(tcp.sport)])
-
-        port_info = ProtocolDissector.COMMON_PORTS.get(tcp.dport, "")
-        QTreeWidgetItem(parent, ["Destination Port", f"{tcp.dport} {port_info}"])
-
-        QTreeWidgetItem(parent, ["Sequence Number", str(tcp.seq)])
-        QTreeWidgetItem(parent, ["Acknowledgment Number", str(tcp.ack)])
-        QTreeWidgetItem(parent, ["Flags", hex(tcp.flags)])
-        QTreeWidgetItem(parent, ["Window Size", str(tcp.win)])
-        parent.setExpanded(True)
 
     
     def _add_udp_layer(self, udp):
