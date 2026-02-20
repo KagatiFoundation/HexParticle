@@ -10,7 +10,8 @@ from  PyQt6 import QtCore
 
 from hex.lib_wrapper import HexParticle, PacketWrapper
 from hex import protocols as protos
-from protocol_dissector import ProtocolDissector, HexViewer
+from protocol_dissector import ProtocolDissector
+from dissectors import HexViewer
 
 import style_loader
 

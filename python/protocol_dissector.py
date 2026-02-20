@@ -1,6 +1,10 @@
-from hex import protocols as protos
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2023 Kagati Foundation
 
-from PyQt6.QtWidgets import QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget, QTextEdit
+from hex import protocols as protos
+import dissectors
+
+from PyQt6.QtWidgets import QTreeWidget, QTreeWidgetItem, QVBoxLayout, QWidget
 
 class ProtocolDissector(QWidget):
     COMMON_PORTS = {53: "DNS", 80: "HTTP", 443: "HTTPS", 67: "DHCP", 68: "DHCP"}
@@ -13,6 +17,10 @@ class ProtocolDissector(QWidget):
         self.tree.setColumnWidth(0, 200)
         self.layout.addWidget(self.tree)
 
+        self.dissection_handlers = {
+            protos.TCPHeader: dissectors.TCPDissectorComponent.dissect
+        }
+
 
     def display_packet(self, pwrapper):
         """
@@ -22,14 +30,16 @@ class ProtocolDissector(QWidget):
         self.tree.clear()
         
         for layer in pwrapper.layers:
+            dissec_handler = self.dissection_handlers.get(type(layer))
+            if dissec_handler:
+                dissec_handler(self.tree, layer)
+
             if isinstance(layer, protos.EtherHeader):
                 self._add_ethernet_layer(layer)
             elif isinstance(layer, protos.ARPHeader):
                 self._add_arp_layer(layer)
             elif isinstance(layer, protos.IPV4Header):
                 self._add_ipv4_layer(layer)
-            elif isinstance(layer, protos.TCPHeader):
-                self._add_tcp_layer(layer)
             elif isinstance(layer, protos.UDPHeader):
                 self._add_udp_layer(layer)
 
@@ -105,32 +115,3 @@ class ProtocolDissector(QWidget):
         QTreeWidgetItem(parent, ["Length", f"{udp.length} bytes"])
         QTreeWidgetItem(parent, ["Checksum", f"0x{udp.cksum:04x}"])
         parent.setExpanded(True)
-
-
-class HexViewer(QTextEdit):
-    def __init__(self):
-        super().__init__()
-        self.setReadOnly(True)
-        self.setFontFamily("Courier New")
-        self.setFontPointSize(10)
-        self.setStyleSheet("background-color: #1e1e1e; color: #d4d4d4;")
-
-    def set_data(self, raw_bytes: bytes):
-        if not raw_bytes:
-            self.setText("No payload data.")
-            return
-
-        hex_dump = []
-        for i in range(0, len(raw_bytes), 16):
-            chunk = raw_bytes[i:i+16]
-            
-            # Address column (0000, 0010, etc)
-            address = f"{i:04x}  "
-            
-            hex_part = " ".join(f"{b:02x}" for b in chunk)
-            hex_part = hex_part.ljust(48)
-            
-            ascii_part = "".join(chr(b) if 32 <= b <= 126 else "." for b in chunk)
-            hex_dump.append(f"{address}{hex_part}  |{ascii_part}|")
-
-        self.setPlainText("\n".join(hex_dump))
