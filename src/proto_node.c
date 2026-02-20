@@ -12,7 +12,10 @@ void free_protocol_node(ProtocolNode_t* head) {
     while (current != NULL) {
         ProtocolNode_t* next_node = current->next;
         
-        if (current->hdr) free(current->hdr);
+        if (current->hdr) {
+			free(current->hdr);
+			current->hdr = NULL;
+		}
         free(current);
         
         current = next_node;

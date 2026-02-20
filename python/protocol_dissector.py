@@ -19,7 +19,8 @@ class ProtocolDissector(QWidget):
 
         self.dissection_handlers = {
             protos.TCPHeader: dissectors.TCPDissectorComponent.dissect,
-            protos.IPV4Header: dissectors.IPV4DissectorComponent.dissect
+            protos.IPV4Header: dissectors.IPV4DissectorComponent.dissect,
+            protos.ARPHeader: dissectors.ARPDissectorComponent.dissect
         }
 
 
@@ -37,8 +38,6 @@ class ProtocolDissector(QWidget):
 
             if isinstance(layer, protos.EtherHeader):
                 self._add_ethernet_layer(layer)
-            elif isinstance(layer, protos.ARPHeader):
-                self._add_arp_layer(layer)
             elif isinstance(layer, protos.UDPHeader):
                 self._add_udp_layer(layer)
 
