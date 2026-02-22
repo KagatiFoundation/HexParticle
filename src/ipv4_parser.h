@@ -31,22 +31,7 @@ typedef struct __attribute__((packed)) IPV4Header {
 } IPV4Header_t;
 
 // sanity checks
-_Static_assert(sizeof(IPV4Header_t) == 20, "IPv4_t must be 20 bytes");
-
-// IPv4 protocol numbers list
-#define IPV4_ICMP           0x01
-#define IPV4_IGMP           0x02
-#define IPV4_TCP            0x06
-#define IPV4_UDP            0x11
-#define IPV4_IPV6_ROUTE     0x2B
-#define IPV4_DSR            0x20
-#define IPV4_SWIPE          0x35
-#define IPV4_TLSP           0x38
-#define IPV4_SKIP           0x39
-#define IPV4_SAT_EXPAK      0x40
-#define IPV4_EIGRP          0x58
-#define IPV4_OSPF           0x59
-#define IPV4_L2TP           0x73
+_Static_assert(sizeof(IPV4Header_t) == 20, "IPV4Header_t's length must be 20 bytes");
 
 #define IPV4_PROTOCOL_NAME_IPV4_ICMP        "ICMP(Internet Control Message Protocol)"
 #define IPV4_PROTOCOL_NAME_IPV4_IGMP        "ICMP(Internet Group Management Protocol)"

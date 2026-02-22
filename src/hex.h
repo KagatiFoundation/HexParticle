@@ -20,10 +20,10 @@ typedef struct _HexInstnace {
     pcap_t* handle;
 } HexInstnace_t;
 
-typedef struct _PacketStream {
+typedef struct _RawPacketStream {
 	uint8_t* 	stream;
 	size_t		length;
-} PacketStream_t;
+} RawPacketStream_t;
 
 /**
  * @brief Initializes a live capture session on the specified network device.
