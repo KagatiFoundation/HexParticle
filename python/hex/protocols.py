@@ -67,6 +67,15 @@ class ProtocolType:
     TCP 	= 4
     UDP 	= 5
 
+
+# Protocol specific constants
+COMMON_PORTS = {
+    20: "FTP", 21: "FTP", 22: "SSH", 23: "Telnet",
+    25: "SMTP", 53: "DNS", 67: "DHCP", 68: "DHCP",
+    80: "HTTP", 443: "HTTPS", 3389: "RDP"
+}
+
+
 # --- Hierarchical Node Structure ---
 class ProtocolNode(ctypes.Structure):
     """

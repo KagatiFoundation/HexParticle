@@ -8,10 +8,10 @@ from hex import protocols as protos, mac_to_str
 class EthernetDissectorComponent:
     @staticmethod
     def dissect(parent_node, ether_header):
-        parent = widgets.QTreeWidgetItem(parent_node, ["Ethernet"])
+        ether_item = widgets.QTreeWidgetItem(parent_node, ["Ethernet"])
         proto_name = protos.ETHER_TYPE_NAMES.get(ether_header.type)
-        widgets.QTreeWidgetItem(parent, ["Source Address", mac_to_str(ether_header.src_mac)])
-        widgets.QTreeWidgetItem(parent, ["Destination Address", mac_to_str(ether_header.dst_mac)])
-        widgets.QTreeWidgetItem(parent, ["Type", str(proto_name)])
-        widgets.QTreeWidgetItem(parent, ["Length", hex(ether_header.len)])
-        parent.setExpanded(False)
+        widgets.QTreeWidgetItem(ether_item, ["Source Address", mac_to_str(ether_header.src_mac)])
+        widgets.QTreeWidgetItem(ether_item, ["Destination Address", mac_to_str(ether_header.dst_mac)])
+        widgets.QTreeWidgetItem(ether_item, ["Type", str(proto_name)])
+        widgets.QTreeWidgetItem(ether_item, ["Length", hex(ether_header.len)])
+        ether_item.setExpanded(False)

@@ -6,11 +6,13 @@ from .tcp import TCPDissectorComponent
 from .ipv4 import IPV4DissectorComponent
 from .arp import ARPDissectorComponent
 from .ethernet import EthernetDissectorComponent
+from .udp import UDPDissectorComponent
 
 __all__ = [
 	'HexViewer', 
 	'TCPDissectorComponent', 
 	'IPV4DissectorComponent', 
 	'ARPDissectorComponent',
-	'EthernetDissectorComponent'
+	'EthernetDissectorComponent',
+	'UDPDissectorComponent'
 ]
