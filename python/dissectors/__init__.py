@@ -5,5 +5,12 @@ from .hex_viewer import HexViewer
 from .tcp import TCPDissectorComponent
 from .ipv4 import IPV4DissectorComponent
 from .arp import ARPDissectorComponent
+from .ethernet import EthernetDissectorComponent
 
-__all__ = ['HexViewer', 'TCPDissectorComponent', 'IPV4DissectorComponent', 'ARPDissectorComponent']
+__all__ = [
+	'HexViewer', 
+	'TCPDissectorComponent', 
+	'IPV4DissectorComponent', 
+	'ARPDissectorComponent',
+	'EthernetDissectorComponent'
+]
