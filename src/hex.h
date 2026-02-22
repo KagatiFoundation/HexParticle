@@ -48,4 +48,6 @@ HEX_P void free_hex_instance(HexInstnace_t* handle);
  */
 HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* handle);
 
+HEX_P void free_packet(ProtocolNode_t* node);
+
 #endif

@@ -16,11 +16,12 @@ class ProtocolDissector(QWidget):
         self.layout.addWidget(self.tree)
 
         self.dissection_handlers = {
-            protos.TCPHeader: dissectors.TCPDissectorComponent.dissect,
-            protos.IPV4Header: dissectors.IPV4DissectorComponent.dissect,
-            protos.ARPHeader: dissectors.ARPDissectorComponent.dissect,
+            protos.TCPHeader: 	dissectors.TCPDissectorComponent.dissect,
+            protos.IPV4Header: 	dissectors.IPV4DissectorComponent.dissect,
+            protos.ARPHeader: 	dissectors.ARPDissectorComponent.dissect,
             protos.EtherHeader: dissectors.EthernetDissectorComponent.dissect,
-            protos.UDPHeader: dissectors.UDPDissectorComponent.dissect
+            protos.UDPHeader: 	dissectors.UDPDissectorComponent.dissect,
+            protos.IPV6Header:	dissectors.IPV6DissectorComponent.dissect
         }
 
 

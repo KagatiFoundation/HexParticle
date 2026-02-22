@@ -1,37 +1,9 @@
+# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2023 Kagati Foundation
+
 import ctypes
 
-# --- IPv4 Protocol Numbers (assigned by IANA) ---
-# Used to identify the next level protocol in the IP header 'proto' field
-IPV4_ICMP        = 0x01
-IPV4_IGMP        = 0x02
-IPV4_TCP         = 0x06
-IPV4_UDP         = 0x11
-IPV4_IPV6_ROUTE  = 0x2B
-IPV4_DSR         = 0x20
-IPV4_SWIPE       = 0x35
-IPV4_TLSP        = 0x38
-IPV4_SKIP        = 0x39
-IPV4_SAT_EXPAK   = 0x40
-IPV4_EIGRP       = 0x58
-IPV4_OSPF        = 0x59
-IPV4_L2TP        = 0x73
-
-# Mapping for human-readable output during packet dissection
-IPV4_PROTOCOL_NAMES = {
-    IPV4_ICMP:        "ICMP(Internet Control Message Protocol)",
-    IPV4_IGMP:        "IGMP(Internet Group Management Protocol)",
-    IPV4_TCP:         "TCP(Transmission Control Protocol)",
-    IPV4_UDP:         "UDP(User Datagram Protocol)",
-    IPV4_IPV6_ROUTE:  "IPv6-Route(Routing Header for IPv6)",
-    IPV4_DSR:         "DSR(Dynamic Source Routing Protocol)",
-    IPV4_SWIPE:       "SwIPe(Swipe IP Security Protocol)",
-    IPV4_TLSP:        "TLSP(Transport Layer Security Protocol)",
-    IPV4_SKIP:        "SKIP(Simple Key Management for IP)",
-    IPV4_SAT_EXPAK:   "SAT-EXPAK(SATNET and Backroom EXPAK)",
-    IPV4_EIGRP:       "EIGRP(Enhanced Interior Gateway Routing Protocol)",
-    IPV4_OSPF:        "OSPF(Open Shorted Path First)",
-    IPV4_L2TP:        "L2TP(Layer 2 Tunneling Protocol version 3)",
-}
+from . import ip
 
 # --- Layer 2 EtherTypes ---
 # Used in the Ethernet frame to determine which protocol is encapsulated
@@ -57,7 +29,7 @@ CT_IPV4_ADDRESS = ctypes.c_uint8 * 4
 CT_MAC_ADDRESS  = ctypes.c_uint8 * 6
 
 def get_protocol_name(proto_number: int) -> str:
-    return IPV4_PROTOCOL_NAMES.get(proto_number, "Unknown Protocol")
+    return ip.IP_PROTOCOL_NAMES.get(proto_number, "Unknown Protocol")
 
 class ProtocolType:
     ETH		= 0
@@ -104,7 +76,7 @@ class EtherHeader(ctypes.Structure):
     ]
 
 class IPV4Header(ctypes.Structure):
-    """Maps to IPv4_t. Represents the standard 20-byte IPv4 header."""
+    """Maps to IPV4Header_t. Represents the standard 20-byte IPv4 header."""
     _pack_ = 1
     _fields_ = [
         ('ver_ihl', 	ctypes.c_uint8),        # Version (4 bits) + IHL (4 bits)
@@ -118,6 +90,19 @@ class IPV4Header(ctypes.Structure):
         ('src', 		CT_IPV4_ADDRESS),       # Source IP
         ('dst', 		CT_IPV4_ADDRESS)        # Destination IP
     ]
+
+
+class IPV6Header(ctypes.Structure):
+    """Maps to IPV6Header_t. Represents the standard 40-byte IPv6 header."""
+    _pack_ = 1
+    _fields_ = [
+        ('ver_tc_fl', 		ctypes.c_uint32),
+        ('len', 			ctypes.c_uint16),
+        ('next_hdr',		ctypes.c_uint8),
+        ('hop_limit', 		ctypes.c_uint8),
+        ('src', 			ip.CT_IPV6_ADDRESS),
+        ('dst', 			ip.CT_IPV6_ADDRESS)
+	]
 
 
 class ARPHeader(ctypes.Structure):
@@ -163,7 +148,7 @@ class UDPHeader(ctypes.Structure):
 
 
 __all__ = [
-    'IPV4_PROTOCOL_NAMES', 
+    'IP_PROTOCOL_NAMES', 
     'ETHER_TYPE_IPV4', 
     'TCPHeader', 
     'ProtocolNode', 

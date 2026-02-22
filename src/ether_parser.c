@@ -7,6 +7,7 @@
 #include "ether_parser.h"
 #include "ipv4_parser.h"
 #include "arp_parser.h"
+#include "ipv6_parser.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,7 +49,8 @@ ProtocolNode_t* parse_ether_packet(const uint8_t* stream, size_t len) {
 		ether_node->next = parse_arp_packet((stream + payload_off));
 	}
 	else if (eth_header->type == ETHER_TYPE_IPV6) {
-		// parse ipv6
+		RawPacketStream_t raw_stream = { .stream = stream + payload_off, .length = len };
+		ether_node->next = parse_ipv6_packet(&raw_stream);
 	}
 
 	return ether_node;

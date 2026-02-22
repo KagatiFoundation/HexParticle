@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MIT
-# SPDX-FileCopyrightText: 2023 Kagati Foundation <https://kagatifoundation.github.org>
+# SPDX-FileCopyrightText: 2023 Kagati Foundation
 
 import ctypes
 import typing
@@ -38,8 +38,8 @@ lib_hexp.free_interfaces_names.argtypes = [ctypes.POINTER(ctypes.c_char_p), ctyp
 lib_hexp.free_interfaces_names.restype = None
 
 # free the packet
-lib_hexp.free_protocol_node.argtypes = [ctypes.POINTER(protocols.ProtocolNode)]
-lib_hexp.free_protocol_node.restype = None
+lib_hexp.free_packet.argtypes = [ctypes.POINTER(protocols.ProtocolNode)]
+lib_hexp.free_packet.restype = None
 
 
 class InterfaceManager:
@@ -62,6 +62,7 @@ class PacketWrapper:
         protocols.ProtocolType.ARP:     protocols.ARPHeader,
         protocols.ProtocolType.TCP:     protocols.TCPHeader,
         protocols.ProtocolType.UDP:     protocols.UDPHeader,
+        protocols.ProtocolType.IPV6:	protocols.IPV6Header
     }
     
     def __init__(self, head_node_ptr):
@@ -89,7 +90,7 @@ class PacketWrapper:
             return None
         
         if not node.hdr:
-            print(f"Error: Node type {node.type} has a NULL header pointer!")
+            print(f"SKIPPED: Node type {node.type} has a NULL header pointer!")
             return None
 
         ptr = ctypes.cast(node.hdr, ctypes.POINTER(header_class))
@@ -127,7 +128,7 @@ class HexParticle():
         pwrapper = PacketWrapper(node)
         
         # free the node
-        lib_hexp.free_protocol_node(node)
+        lib_hexp.free_packet(node)
 
         return pwrapper
 

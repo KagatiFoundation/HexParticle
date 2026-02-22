@@ -45,3 +45,18 @@ HEX_P ProtocolNode_t* read_next_packet(const HexInstnace_t* instance) {
 
 	return NULL;
 }
+
+HEX_P void free_packet(ProtocolNode_t* head) {
+	ProtocolNode_t* current = head;
+    while (current != NULL) {
+        ProtocolNode_t* next_node = current->next;
+        
+        if (current->hdr) {
+			free(current->hdr);
+			current->hdr = NULL;
+		}
+        free(current);
+        
+        current = next_node;
+    }
+}
